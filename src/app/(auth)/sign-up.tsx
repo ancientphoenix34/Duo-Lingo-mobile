@@ -1,7 +1,17 @@
+import { useSignUp, useSSO } from "@clerk/expo";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { Link, router } from "expo-router";
 import { useState } from "react";
-import { Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { AuthTextField } from "@/components/AuthTextField";
@@ -11,9 +21,43 @@ import { images } from "@/constants/images";
 import { colors } from "@/theme";
 
 export default function SignUp() {
+  const { signUp, errors, fetchStatus } = useSignUp();
+  const { startSSOFlow } = useSSO();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
+
+  const handleSignUp = async () => {
+    const { error } = await signUp.password({ emailAddress: email, password });
+    if (error) return;
+
+    const { error: codeError } = await signUp.verifications.sendEmailCode();
+    if (!codeError) setIsVerifying(true);
+  };
+
+  const handleVerify = async (code: string) => {
+    const { error } = await signUp.verifications.verifyEmailCode({ code });
+    if (error) return error.longMessage ?? error.message;
+
+    if (signUp.status !== "complete") {
+      return "We couldn't finish creating your account. Please try again.";
+    }
+
+    await signUp.finalize();
+    return null;
+  };
+
+  const handleGoogleSignUp = async () => {
+    try {
+      const { createdSessionId, setActive } = await startSSOFlow({ strategy: "oauth_google" });
+      if (createdSessionId && setActive) {
+        await setActive({ session: createdSessionId });
+      }
+    } catch (err) {
+      console.error("Google sign-up failed:", err);
+    }
+  };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#ffffff" }}>
@@ -66,6 +110,11 @@ export default function SignUp() {
               onChangeText={setEmail}
               keyboardType="email-address"
             />
+            {errors.fields.emailAddress && (
+              <Text className="body-sm text-error -mt-2">
+                {errors.fields.emailAddress.longMessage ?? errors.fields.emailAddress.message}
+              </Text>
+            )}
             <AuthTextField
               label="Password"
               placeholder="Enter your password"
@@ -73,6 +122,11 @@ export default function SignUp() {
               onChangeText={setPassword}
               secureTextEntry
             />
+            {errors.fields.password && (
+              <Text className="body-sm text-error -mt-2">
+                {errors.fields.password.longMessage ?? errors.fields.password.message}
+              </Text>
+            )}
           </View>
 
           <Pressable
@@ -81,10 +135,21 @@ export default function SignUp() {
               // experimental_backgroundImage isn't expressible via NativeWind arbitrary values
               experimental_backgroundImage: "linear-gradient(to right, #6C4EF5 0%, #8B7CF7 100%)",
             }}
-            onPress={() => setIsVerifying(true)}
+            onPress={handleSignUp}
+            disabled={fetchStatus === "fetching"}
           >
-            <Text className="text-white text-lg font-poppins-semibold">Sign Up</Text>
+            {fetchStatus === "fetching" ? (
+              <ActivityIndicator color="#ffffff" />
+            ) : (
+              <Text className="text-white text-lg font-poppins-semibold">Sign Up</Text>
+            )}
           </Pressable>
+
+          {errors.global && errors.global.length > 0 && (
+            <Text className="body-sm text-error text-center mt-3">
+              {errors.global[0].longMessage ?? errors.global[0].message}
+            </Text>
+          )}
 
           <View className="flex-row items-center gap-3 my-6">
             <View className="flex-1 h-px bg-border" />
@@ -96,6 +161,7 @@ export default function SignUp() {
             <SocialButton
               label="Continue with Google"
               icon={<Ionicons name="logo-google" size={20} color="#4285F4" />}
+              onPress={handleGoogleSignUp}
             />
             <SocialButton
               label="Continue with Facebook"
@@ -113,6 +179,9 @@ export default function SignUp() {
               <Text className="body-md font-poppins-semibold text-lingua-purple">Log in</Text>
             </Link>
           </View>
+
+          {/* Invisible on native; required by Clerk's bot sign-up protection */}
+          <View nativeID="clerk-captcha" />
         </ScrollView>
       </KeyboardAvoidingView>
 
@@ -120,6 +189,7 @@ export default function SignUp() {
         visible={isVerifying}
         email={email || "your email"}
         onClose={() => setIsVerifying(false)}
+        onVerify={handleVerify}
       />
     </SafeAreaView>
   );
