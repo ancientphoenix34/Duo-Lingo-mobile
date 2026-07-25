@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
+  ActivityIndicator,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -19,12 +19,14 @@ type VerificationModalProps = {
   visible: boolean;
   email: string;
   onClose: () => void;
+  // Returns an error message on failure, or null on success.
+  onVerify: (code: string) => Promise<string | null>;
 };
 
 // Bottom-sheet modal for entering the 6-digit email verification code.
 // Digits are typed into an off-screen TextInput and mirrored into the
 // visible boxes below, which keeps backspace/paste handling simple.
-export function VerificationModal({ visible, email, onClose }: VerificationModalProps) {
+export function VerificationModal({ visible, email, onClose, onVerify }: VerificationModalProps) {
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       <KeyboardAvoidingView
@@ -47,7 +49,7 @@ export function VerificationModal({ visible, email, onClose }: VerificationModal
           </Text>
 
           {/* Remounted on every open (via `visible &&`) so the code always starts empty */}
-          {visible && <CodeEntry />}
+          {visible && <CodeEntry onVerify={onVerify} />}
         </View>
       </KeyboardAvoidingView>
     </Modal>
@@ -56,8 +58,10 @@ export function VerificationModal({ visible, email, onClose }: VerificationModal
 
 // Isolated so mounting it fresh each time the modal opens resets the
 // code state, instead of resetting it with setState inside an effect.
-function CodeEntry() {
+function CodeEntry({ onVerify }: { onVerify: (code: string) => Promise<string | null> }) {
   const [code, setCode] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const inputRef = useRef<TextInput>(null);
 
   useEffect(() => {
@@ -65,12 +69,20 @@ function CodeEntry() {
     return () => clearTimeout(focusTimer);
   }, []);
 
-  const handleChangeCode = (text: string) => {
+  const handleChangeCode = async (text: string) => {
     const digits = text.replace(/[^0-9]/g, "").slice(0, CODE_LENGTH);
     setCode(digits);
+    setError(null);
 
     if (digits.length === CODE_LENGTH) {
-      setTimeout(() => router.replace("/"), 250);
+      setIsSubmitting(true);
+      const errorMessage = await onVerify(digits);
+      setIsSubmitting(false);
+
+      if (errorMessage) {
+        setError(errorMessage);
+        setCode("");
+      }
     }
   };
 
@@ -92,12 +104,20 @@ function CodeEntry() {
         ))}
       </Pressable>
 
+      {isSubmitting && (
+        <View className="mt-4 items-center">
+          <ActivityIndicator color={colors.primary} />
+        </View>
+      )}
+      {error && <Text className="body-sm text-error text-center mt-4">{error}</Text>}
+
       <TextInput
         ref={inputRef}
         value={code}
         onChangeText={handleChangeCode}
         keyboardType="number-pad"
         maxLength={CODE_LENGTH}
+        editable={!isSubmitting}
         style={{ position: "absolute", opacity: 0, height: 1, width: 1 }}
       />
     </>

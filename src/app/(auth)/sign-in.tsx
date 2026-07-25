@@ -1,7 +1,17 @@
+import { useSignIn, useSSO } from "@clerk/expo";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { Link, router } from "expo-router";
 import { useState } from "react";
-import { Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { AuthTextField } from "@/components/AuthTextField";
@@ -11,8 +21,41 @@ import { images } from "@/constants/images";
 import { colors } from "@/theme";
 
 export default function SignIn() {
+  const { signIn, errors, fetchStatus } = useSignIn();
+  const { startSSOFlow } = useSSO();
+
   const [email, setEmail] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
+
+  // This screen only collects an email, so sign-in is passwordless: a
+  // one-time code is emailed and confirmed in the VerificationModal below.
+  const handleSignIn = async () => {
+    const { error } = await signIn.emailCode.sendCode({ emailAddress: email });
+    if (!error) setIsVerifying(true);
+  };
+
+  const handleVerify = async (code: string) => {
+    const { error } = await signIn.emailCode.verifyCode({ code });
+    if (error) return error.longMessage ?? error.message;
+
+    if (signIn.status !== "complete") {
+      return "We couldn't finish signing you in. Please try again.";
+    }
+
+    await signIn.finalize();
+    return null;
+  };
+
+  const handleGoogleSignIn = async () => {
+    try {
+      const { createdSessionId, setActive } = await startSSOFlow({ strategy: "oauth_google" });
+      if (createdSessionId && setActive) {
+        await setActive({ session: createdSessionId });
+      }
+    } catch (err) {
+      console.error("Google sign-in failed:", err);
+    }
+  };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#ffffff" }}>
@@ -65,6 +108,11 @@ export default function SignIn() {
               onChangeText={setEmail}
               keyboardType="email-address"
             />
+            {errors.fields.identifier && (
+              <Text className="body-sm text-error -mt-2">
+                {errors.fields.identifier.longMessage ?? errors.fields.identifier.message}
+              </Text>
+            )}
           </View>
 
           <Pressable
@@ -73,10 +121,21 @@ export default function SignIn() {
               // experimental_backgroundImage isn't expressible via NativeWind arbitrary values
               experimental_backgroundImage: "linear-gradient(to right, #6C4EF5 0%, #8B7CF7 100%)",
             }}
-            onPress={() => setIsVerifying(true)}
+            onPress={handleSignIn}
+            disabled={fetchStatus === "fetching"}
           >
-            <Text className="text-white text-lg font-poppins-semibold">Sign In</Text>
+            {fetchStatus === "fetching" ? (
+              <ActivityIndicator color="#ffffff" />
+            ) : (
+              <Text className="text-white text-lg font-poppins-semibold">Sign In</Text>
+            )}
           </Pressable>
+
+          {errors.global && errors.global.length > 0 && (
+            <Text className="body-sm text-error text-center mt-3">
+              {errors.global[0].longMessage ?? errors.global[0].message}
+            </Text>
+          )}
 
           <View className="flex-row items-center gap-3 my-6">
             <View className="flex-1 h-px bg-border" />
@@ -88,6 +147,7 @@ export default function SignIn() {
             <SocialButton
               label="Continue with Google"
               icon={<Ionicons name="logo-google" size={20} color="#4285F4" />}
+              onPress={handleGoogleSignIn}
             />
             <SocialButton
               label="Continue with Facebook"
@@ -112,6 +172,7 @@ export default function SignIn() {
         visible={isVerifying}
         email={email || "your email"}
         onClose={() => setIsVerifying(false)}
+        onVerify={handleVerify}
       />
     </SafeAreaView>
   );
