@@ -22,5 +22,9 @@ export default function RootLayout() {
     return null;
   }
 
-  return <Stack />;
+  return (
+    <Stack>
+      <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+    </Stack>
+  );
 }
