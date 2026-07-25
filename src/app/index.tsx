@@ -1,4 +1,5 @@
 import { useClerk, useUser } from "@clerk/expo";
+import { Link } from "expo-router";
 import { Pressable, Text, View } from "react-native";
 
 export default function Index() {
@@ -11,6 +12,11 @@ export default function Index() {
       <Text className="body-md-muted text-center">
         Signed in as {user?.primaryEmailAddress?.emailAddress}
       </Text>
+      <Link href="/language-selection" asChild>
+        <Pressable className="bg-lingua-purple rounded-full px-6 py-3">
+          <Text className="text-white font-poppins-semibold">Choose a language</Text>
+        </Pressable>
+      </Link>
       <Pressable onPress={() => signOut()} className="bg-lingua-purple rounded-full px-6 py-3">
         <Text className="text-white font-poppins-semibold">Sign out</Text>
       </Pressable>

@@ -48,7 +48,7 @@ export default function Onboarding() {
             />
             <Image
               source={images.mascotWelcome}
-              style={{ width: 340, height: 340 }}
+              style={{ width: 380, height: 380 }}
               resizeMode="contain"
             />
           </View>

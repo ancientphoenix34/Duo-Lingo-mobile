@@ -51,6 +51,7 @@ function RootNavigation() {
     <Stack>
       <Stack.Protected guard={isSignedIn}>
         <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="language-selection" options={{ headerShown: false }} />
       </Stack.Protected>
       <Stack.Protected guard={!isSignedIn}>
         <Stack.Screen name="onboarding" options={{ headerShown: false }} />
