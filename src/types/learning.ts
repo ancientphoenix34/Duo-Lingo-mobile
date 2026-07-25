@@ -2,7 +2,7 @@
 // lessons, activities). Keep these in sync with the data files in `data/`.
 
 // Keep in sync with the `code` values in `data/languages.ts`.
-export type LanguageCode = "es" | "fr" | "ja";
+export type LanguageCode = "es" | "fr" | "ja" | "ko" | "de" | "zh";
 
 export interface Language {
   code: LanguageCode;
@@ -10,6 +10,8 @@ export interface Language {
   nativeName: string;
   flag: string;
   color: string;
+  /** Display string for the learner count shown on the language selection screen, e.g. "28.4M". */
+  learners: string;
 }
 
 export interface VocabularyItem {
