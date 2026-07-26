@@ -80,6 +80,8 @@ export interface Lesson {
   description: string;
   order: number;
   xpReward: number;
+  /** Illustration for this lesson's hero banner and its card badge on the lessons screen. */
+  image?: string;
   goals: LessonGoal[];
   vocabulary: VocabularyItem[];
   phrases: PhraseItem[];
