@@ -25,7 +25,7 @@ export default function LanguageSelection() {
     return languages.filter((language) => language.name.toLowerCase().includes(normalizedQuery));
   }, [query]);
 
-  const goBack = () => (router.canGoBack() ? router.back() : router.replace("/"));
+  const goBack = () => (router.canGoBack() ? router.back() : router.replace("/(tabs)/index"));
 
   const confirmSelection = () => {
     setSelectedLanguage(selectedCode);
