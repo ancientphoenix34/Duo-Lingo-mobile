@@ -7,12 +7,18 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { LanguageListItem } from "@/components/LanguageListItem";
 import { images } from "@/constants/images";
 import { languages } from "@/data/languages";
+import { useLanguageStore } from "@/store/useLanguageStore";
 import { colors } from "@/theme";
 import type { LanguageCode } from "@/types/learning";
 
 export default function LanguageSelection() {
+  const selectedLanguage = useLanguageStore((state) => state.selectedLanguage);
+  const setSelectedLanguage = useLanguageStore((state) => state.setSelectedLanguage);
+
   const [query, setQuery] = useState("");
-  const [selectedCode, setSelectedCode] = useState<LanguageCode>(languages[0].code);
+  const [selectedCode, setSelectedCode] = useState<LanguageCode>(
+    selectedLanguage ?? languages[0].code,
+  );
 
   const filteredLanguages = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -20,6 +26,11 @@ export default function LanguageSelection() {
   }, [query]);
 
   const goBack = () => (router.canGoBack() ? router.back() : router.replace("/"));
+
+  const confirmSelection = () => {
+    setSelectedLanguage(selectedCode);
+    goBack();
+  };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#ffffff" }}>
@@ -66,7 +77,7 @@ export default function LanguageSelection() {
 
         <Pressable
           className="items-center justify-center bg-lingua-purple rounded-full py-5 mt-6"
-          onPress={goBack}
+          onPress={confirmSelection}
         >
           <Text className="text-white text-lg font-poppins-semibold">Confirm</Text>
         </Pressable>

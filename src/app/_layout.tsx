@@ -8,6 +8,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 
 import { fontAssets } from "@/constants/fonts";
+import { useLanguageStore } from "@/store/useLanguageStore";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -31,19 +32,21 @@ export default function RootLayout() {
   );
 }
 
-// Waits for Clerk to resolve the signed-in state before revealing any
-// screen, so the route guards below land on the right screen immediately
-// instead of flashing onboarding before redirecting home (or vice versa).
+// Waits for Clerk to resolve the signed-in state and for the language
+// store to finish reading AsyncStorage before revealing any screen, so the
+// route guards below land on the right screen immediately instead of
+// flashing onboarding/home before redirecting (or vice versa).
 function RootNavigation() {
   const { isLoaded, isSignedIn } = useAuth();
+  const hasHydrated = useLanguageStore((state) => state.hasHydrated);
 
   useEffect(() => {
-    if (isLoaded) {
+    if (isLoaded && hasHydrated) {
       SplashScreen.hideAsync();
     }
-  }, [isLoaded]);
+  }, [isLoaded, hasHydrated]);
 
-  if (!isLoaded) {
+  if (!isLoaded || !hasHydrated) {
     return null;
   }
 
