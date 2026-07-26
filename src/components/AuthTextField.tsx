@@ -11,6 +11,7 @@ type AuthTextFieldProps = {
   placeholder?: string;
   secureTextEntry?: boolean;
   keyboardType?: TextInputProps["keyboardType"];
+  autoCapitalize?: TextInputProps["autoCapitalize"];
 };
 
 // Bordered field with a small label above the value, matching the
@@ -22,6 +23,7 @@ export function AuthTextField({
   placeholder,
   secureTextEntry = false,
   keyboardType = "default",
+  autoCapitalize = "none",
 }: AuthTextFieldProps) {
   const [isHidden, setIsHidden] = useState(secureTextEntry);
 
@@ -37,7 +39,7 @@ export function AuthTextField({
           placeholderTextColor="#9CA3AF"
           secureTextEntry={isHidden}
           keyboardType={keyboardType}
-          autoCapitalize="none"
+          autoCapitalize={autoCapitalize}
           autoCorrect={false}
         />
         {secureTextEntry && (
