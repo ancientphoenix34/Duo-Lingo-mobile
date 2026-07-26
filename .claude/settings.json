@@ -2,7 +2,34 @@
   "permissions": {
     "allow": [
       "Bash(npm view *)",
-      "Bash(npm install *)"
+      "Bash(npm install *)",
+      "Bash(node drive3.mjs)",
+      "Bash(node drive4.mjs)",
+      "Bash(node drive5.mjs)",
+      "Bash(powershell -Command 'Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -like '\\\\''*expo start*8090*'\\\\'' } | Select-Object ProcessId,CommandLine')",
+      "Bash(powershell -Command \"Get-NetTCPConnection -LocalPort 8090 -State Listen | Select-Object -ExpandProperty OwningProcess\")",
+      "Bash(powershell -Command \"Get-CimInstance Win32_Process -Filter 'ProcessId=5248' | Select-Object ProcessId,ParentProcessId,CommandLine\")",
+      "Bash(powershell -Command \"Stop-Process -Id 5248,20684,25240,23180,26768 -Force -ErrorAction SilentlyContinue\")",
+      "Bash(powershell -Command \"Get-NetTCPConnection -LocalPort 8090 -State Listen -ErrorAction SilentlyContinue\")",
+      "Bash(powershell -Command 'try { $c = Get-NetTCPConnection -LocalPort 8090 -State Listen -ErrorAction Stop; Write-Output $c } catch { Write-Output '\\\\''PORT FREE'\\\\'' }')",
+      "Bash(git check-ignore *)",
+      "Bash(git mv *)",
+      "Bash(cd \"c:/Users/ASUS/Desktop/MY WORKS/Duo-Lingo\" && git status --porcelain && echo \"---\" && mv \"src/app/lesson/[id].tsx\" \"src/app/\\(tabs\\)/learn/[id].tsx\" && rmdir \"src/app/lesson\" && git status --porcelain)",
+      "Bash(date +%s)",
+      "Read(//c/Users/ASUS/Desktop/MY WORKS/Duo-Lingo/**)",
+      "Bash(cd \"c:/Users/ASUS/Desktop/MY WORKS/Duo-Lingo\" && stat -c %Y \".expo/types/router.d.ts\" && echo \"---log tail---\" && tail -n 60 \"C:\\\\Users\\\\ASUS\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-ASUS-Desktop-MY-WORKS-Duo-Lingo\\\\cbdc7610-4dde-4c1e-a0eb-7a5a8eb206f7\\\\tasks\\\\blldc8ray.output\")",
+      "Bash(tasklist //FI \"IMAGENAME eq node.exe\")",
+      "Bash(curl -s -m 3 http://localhost:8099/status)",
+      "Bash(taskkill //PID 2176 //F)",
+      "Bash(echo \"exit: $?\")",
+      "Bash(curl -sf http://localhost:8100)",
+      "Bash(node drive.js)",
+      "Bash(node flow.js)",
+      "Bash(taskkill //PID 17724 //F)",
+      "Bash(taskkill //PID 16724 //F)"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\ASUS\\Desktop\\MY WORKS\\Duo-Lingo\\src\\app\\lesson"
     ]
   },
   "enabledPlugins": {

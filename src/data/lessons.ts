@@ -12,6 +12,7 @@ export const lessons: Lesson[] = [
     description: "Say hello, be polite, and say goodbye in Spanish.",
     order: 1,
     xpReward: 10,
+    image: "https://picsum.photos/seed/es-u1-l1/600/400",
     goals: [
       { id: "es-u1-l1-g1", description: "Greet someone in Spanish" },
       { id: "es-u1-l1-g2", description: "Say please and thank you" },
@@ -136,6 +137,7 @@ export const lessons: Lesson[] = [
     description: "Talk about your family members in Spanish.",
     order: 2,
     xpReward: 10,
+    image: "https://picsum.photos/seed/es-u1-l2/600/400",
     goals: [
       { id: "es-u1-l2-g1", description: "Name close family members" },
       { id: "es-u1-l2-g2", description: "Introduce your family" },
@@ -232,6 +234,323 @@ export const lessons: Lesson[] = [
     },
   },
 
+  {
+    id: "es-u1-l3",
+    unitId: "es-u1",
+    languageCode: "es",
+    title: "Daily Life",
+    description: "Talk about your everyday routine in Spanish.",
+    order: 3,
+    xpReward: 10,
+    image: "https://picsum.photos/seed/es-u1-l3/600/400",
+    goals: [
+      { id: "es-u1-l3-g1", description: "Describe your daily routine" },
+      { id: "es-u1-l3-g2", description: "Talk about work and sleep" },
+    ],
+    vocabulary: [
+      {
+        id: "es-u1-l3-v1",
+        term: "El desayuno",
+        translation: "Breakfast",
+        pronunciation: "el deh-SAH-yoo-noh",
+        audioPrompt: "El desayuno",
+      },
+      {
+        id: "es-u1-l3-v2",
+        term: "Trabajar",
+        translation: "To work",
+        pronunciation: "trah-bah-HAR",
+        audioPrompt: "Trabajar",
+      },
+      {
+        id: "es-u1-l3-v3",
+        term: "Dormir",
+        translation: "To sleep",
+        pronunciation: "dor-MEER",
+        audioPrompt: "Dormir",
+      },
+      {
+        id: "es-u1-l3-v4",
+        term: "La rutina",
+        translation: "The routine",
+        pronunciation: "lah roo-TEE-nah",
+        audioPrompt: "La rutina",
+      },
+    ],
+    phrases: [
+      {
+        id: "es-u1-l3-p1",
+        phrase: "¿Qué haces todos los días?",
+        translation: "What do you do every day?",
+        context: "Asking about someone's daily routine",
+      },
+    ],
+    activities: [
+      {
+        id: "es-u1-l3-a1",
+        type: "multiple-choice",
+        prompt: "How do you say 'to work' in Spanish?",
+        vocabularyId: "es-u1-l3-v2",
+        options: [
+          { id: "es-u1-l3-a1-o1", label: "Trabajar", isCorrect: true },
+          { id: "es-u1-l3-a1-o2", label: "Dormir", isCorrect: false },
+          { id: "es-u1-l3-a1-o3", label: "El desayuno", isCorrect: false },
+          { id: "es-u1-l3-a1-o4", label: "La rutina", isCorrect: false },
+        ],
+      },
+      {
+        id: "es-u1-l3-a2",
+        type: "translate",
+        prompt: "Translate to Spanish: Breakfast",
+        vocabularyId: "es-u1-l3-v1",
+        correctAnswer: "El desayuno",
+      },
+    ],
+    aiTeacherPrompt: {
+      systemPrompt:
+        "You are a warm, patient Spanish teacher hosting a live video lesson with a complete beginner. Speak slowly and mix simple Spanish with English translations. Stay focused only on daily-routine vocabulary and phrases for this lesson.",
+      greeting: "¡Hola! Hoy vamos a hablar de la rutina diaria.",
+      focusVocabularyIds: ["es-u1-l3-v1", "es-u1-l3-v2", "es-u1-l3-v3", "es-u1-l3-v4"],
+    },
+  },
+  {
+    id: "es-u1-l4",
+    unitId: "es-u1",
+    languageCode: "es",
+    title: "At the Café",
+    description: "Order food and drinks at a café in Spanish.",
+    order: 4,
+    xpReward: 10,
+    image: "https://picsum.photos/seed/es-u1-l4/600/400",
+    goals: [
+      { id: "es-u1-l4-g1", description: "Order a drink politely" },
+      { id: "es-u1-l4-g2", description: "Ask for the bill" },
+    ],
+    vocabulary: [
+      {
+        id: "es-u1-l4-v1",
+        term: "El café",
+        translation: "Coffee",
+        pronunciation: "el kah-FEH",
+        audioPrompt: "El café",
+      },
+      {
+        id: "es-u1-l4-v2",
+        term: "El té",
+        translation: "Tea",
+        pronunciation: "el TEH",
+        audioPrompt: "El té",
+      },
+      {
+        id: "es-u1-l4-v3",
+        term: "Quisiera",
+        translation: "I would like",
+        pronunciation: "kee-SYEH-rah",
+        audioPrompt: "Quisiera",
+      },
+      {
+        id: "es-u1-l4-v4",
+        term: "La cuenta",
+        translation: "The bill",
+        pronunciation: "lah KWEN-tah",
+        audioPrompt: "La cuenta",
+      },
+    ],
+    phrases: [
+      {
+        id: "es-u1-l4-p1",
+        phrase: "Quisiera un café, por favor",
+        translation: "I would like a coffee, please",
+        context: "Ordering a drink at a café",
+      },
+    ],
+    activities: [
+      {
+        id: "es-u1-l4-a1",
+        type: "multiple-choice",
+        prompt: "How do you say 'coffee' in Spanish?",
+        vocabularyId: "es-u1-l4-v1",
+        options: [
+          { id: "es-u1-l4-a1-o1", label: "El café", isCorrect: true },
+          { id: "es-u1-l4-a1-o2", label: "El té", isCorrect: false },
+          { id: "es-u1-l4-a1-o3", label: "La cuenta", isCorrect: false },
+          { id: "es-u1-l4-a1-o4", label: "Quisiera", isCorrect: false },
+        ],
+      },
+      {
+        id: "es-u1-l4-a2",
+        type: "translate",
+        prompt: "Translate to Spanish: The bill",
+        vocabularyId: "es-u1-l4-v4",
+        correctAnswer: "La cuenta",
+      },
+    ],
+    aiTeacherPrompt: {
+      systemPrompt:
+        "You are a warm, patient Spanish teacher hosting a live video lesson with a complete beginner. Speak slowly and mix simple Spanish with English translations. Stay focused only on café/ordering vocabulary and phrases for this lesson.",
+      greeting: "¡Hola! Hoy vamos a pedir algo en un café.",
+      focusVocabularyIds: ["es-u1-l4-v1", "es-u1-l4-v2", "es-u1-l4-v3", "es-u1-l4-v4"],
+    },
+  },
+  {
+    id: "es-u1-l5",
+    unitId: "es-u1",
+    languageCode: "es",
+    title: "Travel & Directions",
+    description: "Ask for and understand directions in Spanish.",
+    order: 5,
+    xpReward: 10,
+    image: "https://picsum.photos/seed/es-u1-l5/600/400",
+    goals: [
+      { id: "es-u1-l5-g1", description: "Ask where something is" },
+      { id: "es-u1-l5-g2", description: "Understand left and right" },
+    ],
+    vocabulary: [
+      {
+        id: "es-u1-l5-v1",
+        term: "El aeropuerto",
+        translation: "The airport",
+        pronunciation: "el ah-eh-roh-PWER-toh",
+        audioPrompt: "El aeropuerto",
+      },
+      {
+        id: "es-u1-l5-v2",
+        term: "La estación",
+        translation: "The station",
+        pronunciation: "lah es-tah-SYOHN",
+        audioPrompt: "La estación",
+      },
+      {
+        id: "es-u1-l5-v3",
+        term: "Izquierda",
+        translation: "Left",
+        pronunciation: "ees-KYER-dah",
+        audioPrompt: "Izquierda",
+      },
+      {
+        id: "es-u1-l5-v4",
+        term: "Derecha",
+        translation: "Right",
+        pronunciation: "deh-REH-chah",
+        audioPrompt: "Derecha",
+      },
+    ],
+    phrases: [
+      {
+        id: "es-u1-l5-p1",
+        phrase: "¿Dónde está la estación?",
+        translation: "Where is the station?",
+        context: "Asking for directions",
+      },
+    ],
+    activities: [
+      {
+        id: "es-u1-l5-a1",
+        type: "multiple-choice",
+        prompt: "How do you say 'the station' in Spanish?",
+        vocabularyId: "es-u1-l5-v2",
+        options: [
+          { id: "es-u1-l5-a1-o1", label: "La estación", isCorrect: true },
+          { id: "es-u1-l5-a1-o2", label: "El aeropuerto", isCorrect: false },
+          { id: "es-u1-l5-a1-o3", label: "Izquierda", isCorrect: false },
+          { id: "es-u1-l5-a1-o4", label: "Derecha", isCorrect: false },
+        ],
+      },
+      {
+        id: "es-u1-l5-a2",
+        type: "translate",
+        prompt: "Translate to Spanish: Left",
+        vocabularyId: "es-u1-l5-v3",
+        correctAnswer: "Izquierda",
+      },
+    ],
+    aiTeacherPrompt: {
+      systemPrompt:
+        "You are a warm, patient Spanish teacher hosting a live video lesson with a complete beginner. Speak slowly and mix simple Spanish with English translations. Stay focused only on travel and directions vocabulary and phrases for this lesson.",
+      greeting: "¡Hola! Hoy vamos a aprender a pedir direcciones.",
+      focusVocabularyIds: ["es-u1-l5-v1", "es-u1-l5-v2", "es-u1-l5-v3", "es-u1-l5-v4"],
+    },
+  },
+  {
+    id: "es-u1-l6",
+    unitId: "es-u1",
+    languageCode: "es",
+    title: "Shopping",
+    description: "Ask about prices and shop in Spanish.",
+    order: 6,
+    xpReward: 10,
+    image: "https://picsum.photos/seed/es-u1-l6/600/400",
+    goals: [
+      { id: "es-u1-l6-g1", description: "Ask how much something costs" },
+      { id: "es-u1-l6-g2", description: "Describe prices as cheap or expensive" },
+    ],
+    vocabulary: [
+      {
+        id: "es-u1-l6-v1",
+        term: "La tienda",
+        translation: "The store",
+        pronunciation: "lah TYEN-dah",
+        audioPrompt: "La tienda",
+      },
+      {
+        id: "es-u1-l6-v2",
+        term: "El precio",
+        translation: "The price",
+        pronunciation: "el PREH-syoh",
+        audioPrompt: "El precio",
+      },
+      {
+        id: "es-u1-l6-v3",
+        term: "Barato",
+        translation: "Cheap",
+        pronunciation: "bah-RAH-toh",
+        audioPrompt: "Barato",
+      },
+      {
+        id: "es-u1-l6-v4",
+        term: "Caro",
+        translation: "Expensive",
+        pronunciation: "KAH-roh",
+        audioPrompt: "Caro",
+      },
+    ],
+    phrases: [
+      {
+        id: "es-u1-l6-p1",
+        phrase: "¿Cuánto cuesta esto?",
+        translation: "How much does this cost?",
+        context: "Asking for a price while shopping",
+      },
+    ],
+    activities: [
+      {
+        id: "es-u1-l6-a1",
+        type: "multiple-choice",
+        prompt: "How do you say 'expensive' in Spanish?",
+        vocabularyId: "es-u1-l6-v4",
+        options: [
+          { id: "es-u1-l6-a1-o1", label: "Caro", isCorrect: true },
+          { id: "es-u1-l6-a1-o2", label: "Barato", isCorrect: false },
+          { id: "es-u1-l6-a1-o3", label: "La tienda", isCorrect: false },
+          { id: "es-u1-l6-a1-o4", label: "El precio", isCorrect: false },
+        ],
+      },
+      {
+        id: "es-u1-l6-a2",
+        type: "translate",
+        prompt: "Translate to Spanish: How much does this cost?",
+        vocabularyId: "es-u1-l6-v2",
+        correctAnswer: "¿Cuánto cuesta esto?",
+      },
+    ],
+    aiTeacherPrompt: {
+      systemPrompt:
+        "You are a warm, patient Spanish teacher hosting a live video lesson with a complete beginner. Speak slowly and mix simple Spanish with English translations. Stay focused only on shopping vocabulary and phrases for this lesson.",
+      greeting: "¡Hola! Hoy vamos de compras.",
+      focusVocabularyIds: ["es-u1-l6-v1", "es-u1-l6-v2", "es-u1-l6-v3", "es-u1-l6-v4"],
+    },
+  },
+
   // ---------------------------------------------------------------------
   // French
   // ---------------------------------------------------------------------
@@ -243,6 +562,7 @@ export const lessons: Lesson[] = [
     description: "Say hello, be polite, and say goodbye in French.",
     order: 1,
     xpReward: 10,
+    image: "https://picsum.photos/seed/fr-u1-l1/600/400",
     goals: [
       { id: "fr-u1-l1-g1", description: "Greet someone in French" },
       { id: "fr-u1-l1-g2", description: "Say please and thank you" },
@@ -351,6 +671,402 @@ export const lessons: Lesson[] = [
     },
   },
 
+  {
+    id: "fr-u1-l2",
+    unitId: "fr-u1",
+    languageCode: "fr",
+    title: "Family",
+    description: "Talk about your family members in French.",
+    order: 2,
+    xpReward: 10,
+    image: "https://picsum.photos/seed/fr-u1-l2/600/400",
+    goals: [
+      { id: "fr-u1-l2-g1", description: "Name close family members" },
+      { id: "fr-u1-l2-g2", description: "Introduce your family" },
+    ],
+    vocabulary: [
+      {
+        id: "fr-u1-l2-v1",
+        term: "La famille",
+        translation: "The family",
+        pronunciation: "lah fah-MEEY",
+        audioPrompt: "La famille",
+      },
+      {
+        id: "fr-u1-l2-v2",
+        term: "La mère",
+        translation: "The mother",
+        pronunciation: "lah MEHR",
+        audioPrompt: "La mère",
+      },
+      {
+        id: "fr-u1-l2-v3",
+        term: "Le père",
+        translation: "The father",
+        pronunciation: "luh PEHR",
+        audioPrompt: "Le père",
+      },
+      {
+        id: "fr-u1-l2-v4",
+        term: "Le frère",
+        translation: "The brother",
+        pronunciation: "luh FREHR",
+        audioPrompt: "Le frère",
+      },
+    ],
+    phrases: [
+      {
+        id: "fr-u1-l2-p1",
+        phrase: "C'est ma famille",
+        translation: "This is my family",
+        context: "Introducing your family to someone",
+      },
+    ],
+    activities: [
+      {
+        id: "fr-u1-l2-a1",
+        type: "multiple-choice",
+        prompt: "How do you say 'mother' in French?",
+        vocabularyId: "fr-u1-l2-v2",
+        options: [
+          { id: "fr-u1-l2-a1-o1", label: "La mère", isCorrect: true },
+          { id: "fr-u1-l2-a1-o2", label: "Le père", isCorrect: false },
+          { id: "fr-u1-l2-a1-o3", label: "Le frère", isCorrect: false },
+          { id: "fr-u1-l2-a1-o4", label: "La famille", isCorrect: false },
+        ],
+      },
+      {
+        id: "fr-u1-l2-a2",
+        type: "translate",
+        prompt: "Translate to French: my family",
+        vocabularyId: "fr-u1-l2-v1",
+        correctAnswer: "Ma famille",
+      },
+    ],
+    aiTeacherPrompt: {
+      systemPrompt:
+        "You are a warm, patient French teacher hosting a live video lesson with a complete beginner. Speak slowly and mix simple French with English translations. Stay focused only on family vocabulary and phrases for this lesson.",
+      greeting: "Bonjour ! Aujourd'hui on parle de la famille.",
+      focusVocabularyIds: ["fr-u1-l2-v1", "fr-u1-l2-v2", "fr-u1-l2-v3", "fr-u1-l2-v4"],
+    },
+  },
+  {
+    id: "fr-u1-l3",
+    unitId: "fr-u1",
+    languageCode: "fr",
+    title: "Daily Life",
+    description: "Talk about your everyday routine in French.",
+    order: 3,
+    xpReward: 10,
+    image: "https://picsum.photos/seed/fr-u1-l3/600/400",
+    goals: [
+      { id: "fr-u1-l3-g1", description: "Describe your daily routine" },
+      { id: "fr-u1-l3-g2", description: "Talk about work and sleep" },
+    ],
+    vocabulary: [
+      {
+        id: "fr-u1-l3-v1",
+        term: "Le petit-déjeuner",
+        translation: "Breakfast",
+        pronunciation: "luh puh-tee day-zhuh-NAY",
+        audioPrompt: "Le petit-déjeuner",
+      },
+      {
+        id: "fr-u1-l3-v2",
+        term: "Travailler",
+        translation: "To work",
+        pronunciation: "trah-vah-YAY",
+        audioPrompt: "Travailler",
+      },
+      {
+        id: "fr-u1-l3-v3",
+        term: "Dormir",
+        translation: "To sleep",
+        pronunciation: "dor-MEER",
+        audioPrompt: "Dormir",
+      },
+      {
+        id: "fr-u1-l3-v4",
+        term: "La routine",
+        translation: "The routine",
+        pronunciation: "lah roo-TEEN",
+        audioPrompt: "La routine",
+      },
+    ],
+    phrases: [
+      {
+        id: "fr-u1-l3-p1",
+        phrase: "Qu'est-ce que tu fais tous les jours ?",
+        translation: "What do you do every day?",
+        context: "Asking about someone's daily routine",
+      },
+    ],
+    activities: [
+      {
+        id: "fr-u1-l3-a1",
+        type: "multiple-choice",
+        prompt: "How do you say 'to work' in French?",
+        vocabularyId: "fr-u1-l3-v2",
+        options: [
+          { id: "fr-u1-l3-a1-o1", label: "Travailler", isCorrect: true },
+          { id: "fr-u1-l3-a1-o2", label: "Dormir", isCorrect: false },
+          { id: "fr-u1-l3-a1-o3", label: "Le petit-déjeuner", isCorrect: false },
+          { id: "fr-u1-l3-a1-o4", label: "La routine", isCorrect: false },
+        ],
+      },
+      {
+        id: "fr-u1-l3-a2",
+        type: "translate",
+        prompt: "Translate to French: Breakfast",
+        vocabularyId: "fr-u1-l3-v1",
+        correctAnswer: "Le petit-déjeuner",
+      },
+    ],
+    aiTeacherPrompt: {
+      systemPrompt:
+        "You are a warm, patient French teacher hosting a live video lesson with a complete beginner. Speak slowly and mix simple French with English translations. Stay focused only on daily-routine vocabulary and phrases for this lesson.",
+      greeting: "Bonjour ! Parlons de la routine quotidienne.",
+      focusVocabularyIds: ["fr-u1-l3-v1", "fr-u1-l3-v2", "fr-u1-l3-v3", "fr-u1-l3-v4"],
+    },
+  },
+  {
+    id: "fr-u1-l4",
+    unitId: "fr-u1",
+    languageCode: "fr",
+    title: "At the Café",
+    description: "Order food and drinks at a café in French.",
+    order: 4,
+    xpReward: 10,
+    image: "https://picsum.photos/seed/fr-u1-l4/600/400",
+    goals: [
+      { id: "fr-u1-l4-g1", description: "Order a drink politely" },
+      { id: "fr-u1-l4-g2", description: "Ask for the bill" },
+    ],
+    vocabulary: [
+      {
+        id: "fr-u1-l4-v1",
+        term: "Le café",
+        translation: "Coffee",
+        pronunciation: "luh kah-FAY",
+        audioPrompt: "Le café",
+      },
+      {
+        id: "fr-u1-l4-v2",
+        term: "Le thé",
+        translation: "Tea",
+        pronunciation: "luh TAY",
+        audioPrompt: "Le thé",
+      },
+      {
+        id: "fr-u1-l4-v3",
+        term: "Je voudrais",
+        translation: "I would like",
+        pronunciation: "zhuh voo-DREH",
+        audioPrompt: "Je voudrais",
+      },
+      {
+        id: "fr-u1-l4-v4",
+        term: "L'addition",
+        translation: "The bill",
+        pronunciation: "lah-dee-SYOHN",
+        audioPrompt: "L'addition",
+      },
+    ],
+    phrases: [
+      {
+        id: "fr-u1-l4-p1",
+        phrase: "Je voudrais un café, s'il vous plaît",
+        translation: "I would like a coffee, please",
+        context: "Ordering a drink at a café",
+      },
+    ],
+    activities: [
+      {
+        id: "fr-u1-l4-a1",
+        type: "multiple-choice",
+        prompt: "How do you say 'coffee' in French?",
+        vocabularyId: "fr-u1-l4-v1",
+        options: [
+          { id: "fr-u1-l4-a1-o1", label: "Le café", isCorrect: true },
+          { id: "fr-u1-l4-a1-o2", label: "Le thé", isCorrect: false },
+          { id: "fr-u1-l4-a1-o3", label: "L'addition", isCorrect: false },
+          { id: "fr-u1-l4-a1-o4", label: "Je voudrais", isCorrect: false },
+        ],
+      },
+      {
+        id: "fr-u1-l4-a2",
+        type: "translate",
+        prompt: "Translate to French: The bill",
+        vocabularyId: "fr-u1-l4-v4",
+        correctAnswer: "L'addition",
+      },
+    ],
+    aiTeacherPrompt: {
+      systemPrompt:
+        "You are a warm, patient French teacher hosting a live video lesson with a complete beginner. Speak slowly and mix simple French with English translations. Stay focused only on café/ordering vocabulary and phrases for this lesson.",
+      greeting: "Bonjour ! Aujourd'hui on commande au café.",
+      focusVocabularyIds: ["fr-u1-l4-v1", "fr-u1-l4-v2", "fr-u1-l4-v3", "fr-u1-l4-v4"],
+    },
+  },
+  {
+    id: "fr-u1-l5",
+    unitId: "fr-u1",
+    languageCode: "fr",
+    title: "Travel & Directions",
+    description: "Ask for and understand directions in French.",
+    order: 5,
+    xpReward: 10,
+    image: "https://picsum.photos/seed/fr-u1-l5/600/400",
+    goals: [
+      { id: "fr-u1-l5-g1", description: "Ask where something is" },
+      { id: "fr-u1-l5-g2", description: "Understand left and right" },
+    ],
+    vocabulary: [
+      {
+        id: "fr-u1-l5-v1",
+        term: "L'aéroport",
+        translation: "The airport",
+        pronunciation: "lah-ay-ro-POR",
+        audioPrompt: "L'aéroport",
+      },
+      {
+        id: "fr-u1-l5-v2",
+        term: "La gare",
+        translation: "The station",
+        pronunciation: "lah GAHR",
+        audioPrompt: "La gare",
+      },
+      {
+        id: "fr-u1-l5-v3",
+        term: "À gauche",
+        translation: "Left",
+        pronunciation: "ah GOHSH",
+        audioPrompt: "À gauche",
+      },
+      {
+        id: "fr-u1-l5-v4",
+        term: "À droite",
+        translation: "Right",
+        pronunciation: "ah DRWAHT",
+        audioPrompt: "À droite",
+      },
+    ],
+    phrases: [
+      {
+        id: "fr-u1-l5-p1",
+        phrase: "Où est la gare ?",
+        translation: "Where is the station?",
+        context: "Asking for directions",
+      },
+    ],
+    activities: [
+      {
+        id: "fr-u1-l5-a1",
+        type: "multiple-choice",
+        prompt: "How do you say 'the station' in French?",
+        vocabularyId: "fr-u1-l5-v2",
+        options: [
+          { id: "fr-u1-l5-a1-o1", label: "La gare", isCorrect: true },
+          { id: "fr-u1-l5-a1-o2", label: "L'aéroport", isCorrect: false },
+          { id: "fr-u1-l5-a1-o3", label: "À gauche", isCorrect: false },
+          { id: "fr-u1-l5-a1-o4", label: "À droite", isCorrect: false },
+        ],
+      },
+      {
+        id: "fr-u1-l5-a2",
+        type: "translate",
+        prompt: "Translate to French: Left",
+        vocabularyId: "fr-u1-l5-v3",
+        correctAnswer: "À gauche",
+      },
+    ],
+    aiTeacherPrompt: {
+      systemPrompt:
+        "You are a warm, patient French teacher hosting a live video lesson with a complete beginner. Speak slowly and mix simple French with English translations. Stay focused only on travel and directions vocabulary and phrases for this lesson.",
+      greeting: "Bonjour ! Aujourd'hui on apprend à demander son chemin.",
+      focusVocabularyIds: ["fr-u1-l5-v1", "fr-u1-l5-v2", "fr-u1-l5-v3", "fr-u1-l5-v4"],
+    },
+  },
+  {
+    id: "fr-u1-l6",
+    unitId: "fr-u1",
+    languageCode: "fr",
+    title: "Shopping",
+    description: "Ask about prices and shop in French.",
+    order: 6,
+    xpReward: 10,
+    image: "https://picsum.photos/seed/fr-u1-l6/600/400",
+    goals: [
+      { id: "fr-u1-l6-g1", description: "Ask how much something costs" },
+      { id: "fr-u1-l6-g2", description: "Describe prices as cheap or expensive" },
+    ],
+    vocabulary: [
+      {
+        id: "fr-u1-l6-v1",
+        term: "Le magasin",
+        translation: "The store",
+        pronunciation: "luh mah-gah-ZAN",
+        audioPrompt: "Le magasin",
+      },
+      {
+        id: "fr-u1-l6-v2",
+        term: "Le prix",
+        translation: "The price",
+        pronunciation: "luh PREE",
+        audioPrompt: "Le prix",
+      },
+      {
+        id: "fr-u1-l6-v3",
+        term: "Bon marché",
+        translation: "Cheap",
+        pronunciation: "bohn mar-SHAY",
+        audioPrompt: "Bon marché",
+      },
+      {
+        id: "fr-u1-l6-v4",
+        term: "Cher",
+        translation: "Expensive",
+        pronunciation: "SHEHR",
+        audioPrompt: "Cher",
+      },
+    ],
+    phrases: [
+      {
+        id: "fr-u1-l6-p1",
+        phrase: "Combien ça coûte ?",
+        translation: "How much does this cost?",
+        context: "Asking for a price while shopping",
+      },
+    ],
+    activities: [
+      {
+        id: "fr-u1-l6-a1",
+        type: "multiple-choice",
+        prompt: "How do you say 'expensive' in French?",
+        vocabularyId: "fr-u1-l6-v4",
+        options: [
+          { id: "fr-u1-l6-a1-o1", label: "Cher", isCorrect: true },
+          { id: "fr-u1-l6-a1-o2", label: "Bon marché", isCorrect: false },
+          { id: "fr-u1-l6-a1-o3", label: "Le magasin", isCorrect: false },
+          { id: "fr-u1-l6-a1-o4", label: "Le prix", isCorrect: false },
+        ],
+      },
+      {
+        id: "fr-u1-l6-a2",
+        type: "translate",
+        prompt: "Translate to French: How much does this cost?",
+        vocabularyId: "fr-u1-l6-v2",
+        correctAnswer: "Combien ça coûte ?",
+      },
+    ],
+    aiTeacherPrompt: {
+      systemPrompt:
+        "You are a warm, patient French teacher hosting a live video lesson with a complete beginner. Speak slowly and mix simple French with English translations. Stay focused only on shopping vocabulary and phrases for this lesson.",
+      greeting: "Bonjour ! Aujourd'hui on va faire du shopping.",
+      focusVocabularyIds: ["fr-u1-l6-v1", "fr-u1-l6-v2", "fr-u1-l6-v3", "fr-u1-l6-v4"],
+    },
+  },
+
   // ---------------------------------------------------------------------
   // Japanese
   // ---------------------------------------------------------------------
@@ -362,6 +1078,7 @@ export const lessons: Lesson[] = [
     description: "Say hello, be polite, and say goodbye in Japanese.",
     order: 1,
     xpReward: 10,
+    image: "https://picsum.photos/seed/ja-u1-l1/600/400",
     goals: [
       { id: "ja-u1-l1-g1", description: "Greet someone in Japanese" },
       { id: "ja-u1-l1-g2", description: "Say please and thank you" },
@@ -470,6 +1187,401 @@ export const lessons: Lesson[] = [
         "ja-u1-l1-v4",
         "ja-u1-l1-v5",
       ],
+    },
+  },
+  {
+    id: "ja-u1-l2",
+    unitId: "ja-u1",
+    languageCode: "ja",
+    title: "Family",
+    description: "Talk about your family members in Japanese.",
+    order: 2,
+    xpReward: 10,
+    image: "https://picsum.photos/seed/ja-u1-l2/600/400",
+    goals: [
+      { id: "ja-u1-l2-g1", description: "Name close family members" },
+      { id: "ja-u1-l2-g2", description: "Introduce your family" },
+    ],
+    vocabulary: [
+      {
+        id: "ja-u1-l2-v1",
+        term: "家族",
+        translation: "Family",
+        pronunciation: "kazoku",
+        audioPrompt: "家族",
+      },
+      {
+        id: "ja-u1-l2-v2",
+        term: "母",
+        translation: "Mother",
+        pronunciation: "haha",
+        audioPrompt: "母",
+      },
+      {
+        id: "ja-u1-l2-v3",
+        term: "父",
+        translation: "Father",
+        pronunciation: "chichi",
+        audioPrompt: "父",
+      },
+      {
+        id: "ja-u1-l2-v4",
+        term: "兄弟",
+        translation: "Siblings",
+        pronunciation: "kyoudai",
+        audioPrompt: "兄弟",
+      },
+    ],
+    phrases: [
+      {
+        id: "ja-u1-l2-p1",
+        phrase: "これは私の家族です",
+        translation: "This is my family",
+        context: "Introducing your family to someone",
+      },
+    ],
+    activities: [
+      {
+        id: "ja-u1-l2-a1",
+        type: "multiple-choice",
+        prompt: "How do you say 'mother' in Japanese?",
+        vocabularyId: "ja-u1-l2-v2",
+        options: [
+          { id: "ja-u1-l2-a1-o1", label: "母", isCorrect: true },
+          { id: "ja-u1-l2-a1-o2", label: "父", isCorrect: false },
+          { id: "ja-u1-l2-a1-o3", label: "兄弟", isCorrect: false },
+          { id: "ja-u1-l2-a1-o4", label: "家族", isCorrect: false },
+        ],
+      },
+      {
+        id: "ja-u1-l2-a2",
+        type: "translate",
+        prompt: "Translate to Japanese: family",
+        vocabularyId: "ja-u1-l2-v1",
+        correctAnswer: "家族",
+      },
+    ],
+    aiTeacherPrompt: {
+      systemPrompt:
+        "You are a warm, patient Japanese teacher hosting a live video lesson with a complete beginner. Speak slowly and say each word in Japanese followed by its romaji reading and English translation. Stay focused only on family vocabulary and phrases for this lesson.",
+      greeting: "こんにちは！Today we'll talk about family (家族).",
+      focusVocabularyIds: ["ja-u1-l2-v1", "ja-u1-l2-v2", "ja-u1-l2-v3", "ja-u1-l2-v4"],
+    },
+  },
+  {
+    id: "ja-u1-l3",
+    unitId: "ja-u1",
+    languageCode: "ja",
+    title: "Daily Life",
+    description: "Talk about your everyday routine in Japanese.",
+    order: 3,
+    xpReward: 10,
+    image: "https://picsum.photos/seed/ja-u1-l3/600/400",
+    goals: [
+      { id: "ja-u1-l3-g1", description: "Describe your daily routine" },
+      { id: "ja-u1-l3-g2", description: "Talk about work and sleep" },
+    ],
+    vocabulary: [
+      {
+        id: "ja-u1-l3-v1",
+        term: "朝ごはん",
+        translation: "Breakfast",
+        pronunciation: "asagohan",
+        audioPrompt: "朝ごはん",
+      },
+      {
+        id: "ja-u1-l3-v2",
+        term: "働く",
+        translation: "To work",
+        pronunciation: "hataraku",
+        audioPrompt: "働く",
+      },
+      {
+        id: "ja-u1-l3-v3",
+        term: "寝る",
+        translation: "To sleep",
+        pronunciation: "neru",
+        audioPrompt: "寝る",
+      },
+      {
+        id: "ja-u1-l3-v4",
+        term: "習慣",
+        translation: "Routine",
+        pronunciation: "shuukan",
+        audioPrompt: "習慣",
+      },
+    ],
+    phrases: [
+      {
+        id: "ja-u1-l3-p1",
+        phrase: "毎日何をしますか",
+        translation: "What do you do every day?",
+        context: "Asking about someone's daily routine",
+      },
+    ],
+    activities: [
+      {
+        id: "ja-u1-l3-a1",
+        type: "multiple-choice",
+        prompt: "How do you say 'to work' in Japanese?",
+        vocabularyId: "ja-u1-l3-v2",
+        options: [
+          { id: "ja-u1-l3-a1-o1", label: "働く", isCorrect: true },
+          { id: "ja-u1-l3-a1-o2", label: "寝る", isCorrect: false },
+          { id: "ja-u1-l3-a1-o3", label: "朝ごはん", isCorrect: false },
+          { id: "ja-u1-l3-a1-o4", label: "習慣", isCorrect: false },
+        ],
+      },
+      {
+        id: "ja-u1-l3-a2",
+        type: "translate",
+        prompt: "Translate to Japanese: Breakfast",
+        vocabularyId: "ja-u1-l3-v1",
+        correctAnswer: "朝ごはん",
+      },
+    ],
+    aiTeacherPrompt: {
+      systemPrompt:
+        "You are a warm, patient Japanese teacher hosting a live video lesson with a complete beginner. Speak slowly and say each word in Japanese followed by its romaji reading and English translation. Stay focused only on daily-routine vocabulary and phrases for this lesson.",
+      greeting: "こんにちは！Let's talk about daily routines (習慣).",
+      focusVocabularyIds: ["ja-u1-l3-v1", "ja-u1-l3-v2", "ja-u1-l3-v3", "ja-u1-l3-v4"],
+    },
+  },
+  {
+    id: "ja-u1-l4",
+    unitId: "ja-u1",
+    languageCode: "ja",
+    title: "At the Café",
+    description: "Order food and drinks at a café in Japanese.",
+    order: 4,
+    xpReward: 10,
+    image: "https://picsum.photos/seed/ja-u1-l4/600/400",
+    goals: [
+      { id: "ja-u1-l4-g1", description: "Order a drink politely" },
+      { id: "ja-u1-l4-g2", description: "Ask for the bill" },
+    ],
+    vocabulary: [
+      {
+        id: "ja-u1-l4-v1",
+        term: "コーヒー",
+        translation: "Coffee",
+        pronunciation: "koohii",
+        audioPrompt: "コーヒー",
+      },
+      {
+        id: "ja-u1-l4-v2",
+        term: "お茶",
+        translation: "Tea",
+        pronunciation: "ocha",
+        audioPrompt: "お茶",
+      },
+      {
+        id: "ja-u1-l4-v3",
+        term: "〜をください",
+        translation: "Please give me ~",
+        pronunciation: "~o kudasai",
+        audioPrompt: "をください",
+      },
+      {
+        id: "ja-u1-l4-v4",
+        term: "お会計",
+        translation: "The bill",
+        pronunciation: "okaikei",
+        audioPrompt: "お会計",
+      },
+    ],
+    phrases: [
+      {
+        id: "ja-u1-l4-p1",
+        phrase: "コーヒーをください",
+        translation: "Coffee, please",
+        context: "Ordering a drink at a café",
+      },
+    ],
+    activities: [
+      {
+        id: "ja-u1-l4-a1",
+        type: "multiple-choice",
+        prompt: "How do you say 'coffee' in Japanese?",
+        vocabularyId: "ja-u1-l4-v1",
+        options: [
+          { id: "ja-u1-l4-a1-o1", label: "コーヒー", isCorrect: true },
+          { id: "ja-u1-l4-a1-o2", label: "お茶", isCorrect: false },
+          { id: "ja-u1-l4-a1-o3", label: "お会計", isCorrect: false },
+          { id: "ja-u1-l4-a1-o4", label: "〜をください", isCorrect: false },
+        ],
+      },
+      {
+        id: "ja-u1-l4-a2",
+        type: "translate",
+        prompt: "Translate to Japanese: The bill",
+        vocabularyId: "ja-u1-l4-v4",
+        correctAnswer: "お会計",
+      },
+    ],
+    aiTeacherPrompt: {
+      systemPrompt:
+        "You are a warm, patient Japanese teacher hosting a live video lesson with a complete beginner. Speak slowly and say each word in Japanese followed by its romaji reading and English translation. Stay focused only on café/ordering vocabulary and phrases for this lesson.",
+      greeting: "こんにちは！Today we'll order something at a café.",
+      focusVocabularyIds: ["ja-u1-l4-v1", "ja-u1-l4-v2", "ja-u1-l4-v3", "ja-u1-l4-v4"],
+    },
+  },
+  {
+    id: "ja-u1-l5",
+    unitId: "ja-u1",
+    languageCode: "ja",
+    title: "Travel & Directions",
+    description: "Ask for and understand directions in Japanese.",
+    order: 5,
+    xpReward: 10,
+    image: "https://picsum.photos/seed/ja-u1-l5/600/400",
+    goals: [
+      { id: "ja-u1-l5-g1", description: "Ask where something is" },
+      { id: "ja-u1-l5-g2", description: "Understand left and right" },
+    ],
+    vocabulary: [
+      {
+        id: "ja-u1-l5-v1",
+        term: "空港",
+        translation: "Airport",
+        pronunciation: "kuukou",
+        audioPrompt: "空港",
+      },
+      {
+        id: "ja-u1-l5-v2",
+        term: "駅",
+        translation: "Station",
+        pronunciation: "eki",
+        audioPrompt: "駅",
+      },
+      {
+        id: "ja-u1-l5-v3",
+        term: "左",
+        translation: "Left",
+        pronunciation: "hidari",
+        audioPrompt: "左",
+      },
+      {
+        id: "ja-u1-l5-v4",
+        term: "右",
+        translation: "Right",
+        pronunciation: "migi",
+        audioPrompt: "右",
+      },
+    ],
+    phrases: [
+      {
+        id: "ja-u1-l5-p1",
+        phrase: "駅はどこですか",
+        translation: "Where is the station?",
+        context: "Asking for directions",
+      },
+    ],
+    activities: [
+      {
+        id: "ja-u1-l5-a1",
+        type: "multiple-choice",
+        prompt: "How do you say 'station' in Japanese?",
+        vocabularyId: "ja-u1-l5-v2",
+        options: [
+          { id: "ja-u1-l5-a1-o1", label: "駅", isCorrect: true },
+          { id: "ja-u1-l5-a1-o2", label: "空港", isCorrect: false },
+          { id: "ja-u1-l5-a1-o3", label: "左", isCorrect: false },
+          { id: "ja-u1-l5-a1-o4", label: "右", isCorrect: false },
+        ],
+      },
+      {
+        id: "ja-u1-l5-a2",
+        type: "translate",
+        prompt: "Translate to Japanese: Left",
+        vocabularyId: "ja-u1-l5-v3",
+        correctAnswer: "左",
+      },
+    ],
+    aiTeacherPrompt: {
+      systemPrompt:
+        "You are a warm, patient Japanese teacher hosting a live video lesson with a complete beginner. Speak slowly and say each word in Japanese followed by its romaji reading and English translation. Stay focused only on travel and directions vocabulary and phrases for this lesson.",
+      greeting: "こんにちは！Let's learn how to ask for directions.",
+      focusVocabularyIds: ["ja-u1-l5-v1", "ja-u1-l5-v2", "ja-u1-l5-v3", "ja-u1-l5-v4"],
+    },
+  },
+  {
+    id: "ja-u1-l6",
+    unitId: "ja-u1",
+    languageCode: "ja",
+    title: "Shopping",
+    description: "Ask about prices and shop in Japanese.",
+    order: 6,
+    xpReward: 10,
+    image: "https://picsum.photos/seed/ja-u1-l6/600/400",
+    goals: [
+      { id: "ja-u1-l6-g1", description: "Ask how much something costs" },
+      { id: "ja-u1-l6-g2", description: "Describe prices as cheap or expensive" },
+    ],
+    vocabulary: [
+      {
+        id: "ja-u1-l6-v1",
+        term: "店",
+        translation: "Store",
+        pronunciation: "mise",
+        audioPrompt: "店",
+      },
+      {
+        id: "ja-u1-l6-v2",
+        term: "値段",
+        translation: "Price",
+        pronunciation: "nedan",
+        audioPrompt: "値段",
+      },
+      {
+        id: "ja-u1-l6-v3",
+        term: "安い",
+        translation: "Cheap",
+        pronunciation: "yasui",
+        audioPrompt: "安い",
+      },
+      {
+        id: "ja-u1-l6-v4",
+        term: "高い",
+        translation: "Expensive",
+        pronunciation: "takai",
+        audioPrompt: "高い",
+      },
+    ],
+    phrases: [
+      {
+        id: "ja-u1-l6-p1",
+        phrase: "これはいくらですか",
+        translation: "How much is this?",
+        context: "Asking for a price while shopping",
+      },
+    ],
+    activities: [
+      {
+        id: "ja-u1-l6-a1",
+        type: "multiple-choice",
+        prompt: "How do you say 'expensive' in Japanese?",
+        vocabularyId: "ja-u1-l6-v4",
+        options: [
+          { id: "ja-u1-l6-a1-o1", label: "高い", isCorrect: true },
+          { id: "ja-u1-l6-a1-o2", label: "安い", isCorrect: false },
+          { id: "ja-u1-l6-a1-o3", label: "店", isCorrect: false },
+          { id: "ja-u1-l6-a1-o4", label: "値段", isCorrect: false },
+        ],
+      },
+      {
+        id: "ja-u1-l6-a2",
+        type: "translate",
+        prompt: "Translate to Japanese: How much is this?",
+        vocabularyId: "ja-u1-l6-v2",
+        correctAnswer: "これはいくらですか",
+      },
+    ],
+    aiTeacherPrompt: {
+      systemPrompt:
+        "You are a warm, patient Japanese teacher hosting a live video lesson with a complete beginner. Speak slowly and say each word in Japanese followed by its romaji reading and English translation. Stay focused only on shopping vocabulary and phrases for this lesson.",
+      greeting: "こんにちは！Today we'll go shopping.",
+      focusVocabularyIds: ["ja-u1-l6-v1", "ja-u1-l6-v2", "ja-u1-l6-v3", "ja-u1-l6-v4"],
     },
   },
 ];
