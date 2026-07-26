@@ -24,12 +24,19 @@ export default function SignUp() {
   const { signUp, errors, fetchStatus } = useSignUp();
   const { startSSOFlow } = useSSO();
 
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
 
   const handleSignUp = async () => {
-    const { error } = await signUp.password({ emailAddress: email, password });
+    const { error } = await signUp.password({
+      emailAddress: email,
+      password,
+      firstName,
+      lastName: lastName || undefined,
+    });
     if (error) return;
 
     const { error: codeError } = await signUp.verifications.sendEmailCode();
@@ -103,6 +110,36 @@ export default function SignUp() {
           </View>
 
           <View className="gap-4">
+            <View className="flex-row gap-3">
+              <View className="flex-1">
+                <AuthTextField
+                  label="First name"
+                  placeholder="Alex"
+                  value={firstName}
+                  onChangeText={setFirstName}
+                  autoCapitalize="words"
+                />
+                {errors.fields.firstName && (
+                  <Text className="body-sm text-error mt-1">
+                    {errors.fields.firstName.longMessage ?? errors.fields.firstName.message}
+                  </Text>
+                )}
+              </View>
+              <View className="flex-1">
+                <AuthTextField
+                  label="Last name"
+                  placeholder="Taylor"
+                  value={lastName}
+                  onChangeText={setLastName}
+                  autoCapitalize="words"
+                />
+                {errors.fields.lastName && (
+                  <Text className="body-sm text-error mt-1">
+                    {errors.fields.lastName.longMessage ?? errors.fields.lastName.message}
+                  </Text>
+                )}
+              </View>
+            </View>
             <AuthTextField
               label="Email"
               placeholder="alex@gmail.com"
