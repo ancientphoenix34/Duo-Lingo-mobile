@@ -1,6 +1,7 @@
 import { useSignIn, useSSO } from "@clerk/expo";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { Link, router } from "expo-router";
+import { usePostHog } from "posthog-react-native";
 import { useState } from "react";
 import {
   ActivityIndicator,
@@ -23,6 +24,7 @@ import { colors } from "@/theme";
 export default function SignIn() {
   const { signIn, errors, fetchStatus } = useSignIn();
   const { startSSOFlow } = useSSO();
+  const posthog = usePostHog();
 
   const [email, setEmail] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
@@ -30,6 +32,8 @@ export default function SignIn() {
   // This screen only collects an email, so sign-in is passwordless: a
   // one-time code is emailed and confirmed in the VerificationModal below.
   const handleSignIn = async () => {
+    posthog.capture("sign_in_submitted");
+
     const { error } = await signIn.emailCode.sendCode({ emailAddress: email });
     if (!error) setIsVerifying(true);
   };
@@ -43,11 +47,13 @@ export default function SignIn() {
     }
 
     await signIn.finalize();
+    posthog.capture("sign_in_completed");
     return null;
   };
 
   const handleGoogleSignIn = async () => {
     try {
+      posthog.capture("sign_in_sso_started", { provider: "google" });
       const { createdSessionId, setActive } = await startSSOFlow({ strategy: "oauth_google" });
       if (createdSessionId && setActive) {
         await setActive({ session: createdSessionId });

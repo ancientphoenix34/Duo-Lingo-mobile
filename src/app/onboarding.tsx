@@ -1,4 +1,5 @@
 import { router, Stack } from "expo-router";
+import { usePostHog } from "posthog-react-native";
 import { Image, Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -6,6 +7,8 @@ import { SpeechBubble } from "@/components/SpeechBubble";
 import { images } from "@/constants/images";
 
 export default function Onboarding() {
+  const posthog = usePostHog();
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#ffffff" }}>
       <Stack.Screen options={{ headerShown: false }} />
@@ -55,7 +58,10 @@ export default function Onboarding() {
         </View>
 
         <Pressable
-          onPress={() => router.push("/sign-up")}
+          onPress={() => {
+            posthog.capture("onboarding_get_started_tapped");
+            router.push("/sign-up");
+          }}
           className="relative items-center justify-center bg-lingua-purple rounded-full py-5 mb-6"
         >
           <Text className="text-white text-lg font-poppins-semibold">Get Started</Text>
