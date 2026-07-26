@@ -3,11 +3,13 @@ import "../../global.css";
 import { ClerkProvider, useAuth } from "@clerk/expo";
 import { tokenCache } from "@clerk/expo/token-cache";
 import { useFonts } from "expo-font";
-import { Stack } from "expo-router";
+import { Stack, usePathname } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
+import { PostHogProvider, usePostHog } from "posthog-react-native";
 import { useEffect } from "react";
 
 import { fontAssets } from "@/constants/fonts";
+import { posthogApiKey, posthogHost } from "@/lib/posthog";
 import { useLanguageStore } from "@/store/useLanguageStore";
 
 SplashScreen.preventAutoHideAsync();
@@ -26,9 +28,16 @@ export default function RootLayout() {
   }
 
   return (
-    <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
-      <RootNavigation />
-    </ClerkProvider>
+    <PostHogProvider
+      apiKey={posthogApiKey}
+      options={{ host: posthogHost, captureAppLifecycleEvents: true }}
+      autocapture={{ captureScreens: false, captureTouches: false }}
+      debug
+    >
+      <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
+        <RootNavigation />
+      </ClerkProvider>
+    </PostHogProvider>
   );
 }
 
@@ -39,12 +48,21 @@ export default function RootLayout() {
 function RootNavigation() {
   const { isLoaded, isSignedIn } = useAuth();
   const hasHydrated = useLanguageStore((state) => state.hasHydrated);
+  const posthog = usePostHog();
+  const pathname = usePathname();
 
   useEffect(() => {
     if (isLoaded && hasHydrated) {
       SplashScreen.hideAsync();
     }
   }, [isLoaded, hasHydrated]);
+
+  // expo-router doesn't use @react-navigation/native under the hood (SDK 57),
+  // so PostHog's built-in navigation autocapture can't see route changes —
+  // track screen views manually off the current pathname instead.
+  useEffect(() => {
+    posthog.screen(pathname);
+  }, [pathname, posthog]);
 
   if (!isLoaded || !hasHydrated) {
     return null;

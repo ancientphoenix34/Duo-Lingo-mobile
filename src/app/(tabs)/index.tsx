@@ -2,6 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useUser } from "@clerk/expo";
 import { LinearGradient } from "expo-linear-gradient";
 import { Redirect, router } from "expo-router";
+import { usePostHog } from "posthog-react-native";
 import { Image, Pressable, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -36,6 +37,7 @@ const DAILY_GOAL_XP = 20;
 export default function Index() {
   const { user } = useUser();
   const selectedLanguage = useLanguageStore((state) => state.selectedLanguage);
+  const posthog = usePostHog();
 
   if (!selectedLanguage) {
     return <Redirect href="/language-selection" />;
@@ -141,7 +143,10 @@ export default function Index() {
             </Text>
 
             <Pressable
-              onPress={() => router.push("/(tabs)/learn")}
+              onPress={() => {
+                posthog.capture("continue_learning_tapped");
+                router.push("/(tabs)/learn");
+              }}
               className="self-start bg-white rounded-full px-6 py-3 mt-4 mb-5"
             >
               <Text className="text-lingua-purple font-poppins-semibold">Continue</Text>

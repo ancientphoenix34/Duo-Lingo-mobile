@@ -1,6 +1,7 @@
 import { useSignUp, useSSO } from "@clerk/expo";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { Link, router } from "expo-router";
+import { usePostHog } from "posthog-react-native";
 import { useState } from "react";
 import {
   ActivityIndicator,
@@ -23,6 +24,7 @@ import { colors } from "@/theme";
 export default function SignUp() {
   const { signUp, errors, fetchStatus } = useSignUp();
   const { startSSOFlow } = useSSO();
+  const posthog = usePostHog();
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -31,6 +33,8 @@ export default function SignUp() {
   const [isVerifying, setIsVerifying] = useState(false);
 
   const handleSignUp = async () => {
+    posthog.capture("sign_up_submitted");
+
     const { error } = await signUp.password({
       emailAddress: email,
       password,
@@ -52,11 +56,13 @@ export default function SignUp() {
     }
 
     await signUp.finalize();
+    posthog.capture("sign_up_completed");
     return null;
   };
 
   const handleGoogleSignUp = async () => {
     try {
+      posthog.capture("sign_up_sso_started", { provider: "google" });
       const { createdSessionId, setActive } = await startSSOFlow({ strategy: "oauth_google" });
       if (createdSessionId && setActive) {
         await setActive({ session: createdSessionId });

@@ -1,5 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import { usePostHog } from "posthog-react-native";
 import { useMemo, useState } from "react";
 import { Image, Pressable, ScrollView, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -14,6 +15,7 @@ import type { LanguageCode } from "@/types/learning";
 export default function LanguageSelection() {
   const selectedLanguage = useLanguageStore((state) => state.selectedLanguage);
   const setSelectedLanguage = useLanguageStore((state) => state.setSelectedLanguage);
+  const posthog = usePostHog();
 
   const [query, setQuery] = useState("");
   const [selectedCode, setSelectedCode] = useState<LanguageCode>(
@@ -28,6 +30,7 @@ export default function LanguageSelection() {
   const goBack = () => (router.canGoBack() ? router.back() : router.replace("/(tabs)/index"));
 
   const confirmSelection = () => {
+    posthog.capture("language_selected", { language: selectedCode });
     setSelectedLanguage(selectedCode);
     goBack();
   };
