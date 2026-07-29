@@ -8,6 +8,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { PostHogProvider, usePostHog } from "posthog-react-native";
 import { useEffect } from "react";
 
+import { StreamVideoProvider } from "@/components/StreamVideoProvider";
 import { fontAssets } from "@/constants/fonts";
 import { posthogApiKey, posthogHost } from "@/lib/posthog";
 import { useLanguageStore } from "@/store/useLanguageStore";
@@ -68,7 +69,7 @@ function RootNavigation() {
     return null;
   }
 
-  return (
+  const stack = (
     <Stack>
       <Stack.Protected guard={isSignedIn}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
@@ -80,4 +81,9 @@ function RootNavigation() {
       </Stack.Protected>
     </Stack>
   );
+
+  // Only the signed-in stack needs a Stream Video connection - keep it
+  // mounted for the whole authenticated session so screen transitions don't
+  // tear down and reconnect the WebSocket.
+  return isSignedIn ? <StreamVideoProvider>{stack}</StreamVideoProvider> : stack;
 }

@@ -1,0 +1,11 @@
+[project]
+name = "vision-agent"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "vision-agents>=0.6.8",
+    "vision-agents-plugins-getstream>=0.6.8",
+    "vision-agents-plugins-openai>=0.6.8",
+]
