@@ -1,16 +1,25 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useUser } from "@clerk/expo";
+import {
+  CallingState,
+  StreamCall,
+  useCall,
+  useCallStateHooks,
+} from "@stream-io/video-react-native-sdk";
 import { LinearGradient } from "expo-linear-gradient";
 import { router, useLocalSearchParams } from "expo-router";
 import { usePostHog } from "posthog-react-native";
 import { useState } from "react";
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { images } from "@/constants/images";
 import { languages } from "@/data/languages";
 import { lessons } from "@/data/lessons";
+import { useAudioLessonCall } from "@/hooks/useAudioLessonCall";
+import { useVisionAgentSession, type AgentStatus } from "@/hooks/useVisionAgentSession";
 import { colors } from "@/theme";
+import type { Language, Lesson } from "@/types/learning";
 
 type IoniconName = React.ComponentProps<typeof Ionicons>["name"];
 
@@ -20,13 +29,6 @@ const STREAK_COUNT = 12;
 
 export default function AudioLesson() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { user } = useUser();
-  const posthog = usePostHog();
-
-  const [isMuted, setIsMuted] = useState(false);
-  const [isCameraOn, setIsCameraOn] = useState(false);
-  const [showSubtitles, setShowSubtitles] = useState(true);
-  const [messageIndex, setMessageIndex] = useState(0);
 
   const lesson = lessons.find((item) => item.id === id);
 
@@ -47,6 +49,75 @@ export default function AudioLesson() {
 
   const language = languages.find((item) => item.code === lesson.languageCode)!;
 
+  return <AudioLessonScreen lesson={lesson} language={language} goBack={goBack} />;
+}
+
+function AudioLessonScreen({
+  lesson,
+  language,
+  goBack,
+}: {
+  lesson: Lesson;
+  language: Language;
+  goBack: () => void;
+}) {
+  const { user } = useUser();
+  const posthog = usePostHog();
+
+  const [isCameraOn, setIsCameraOn] = useState(false);
+  const [showSubtitles, setShowSubtitles] = useState(true);
+  const [messageIndex, setMessageIndex] = useState(0);
+
+  const { call, status, error, endCall, retry } = useAudioLessonCall({ lessonId: lesson.id });
+
+  const handleEndCall = async () => {
+    posthog.capture("audio_lesson_ended", { lessonId: lesson.id });
+    await endCall();
+    goBack();
+  };
+
+  if (status === "connecting") {
+    return (
+      <SafeAreaView style={{ flex: 1, backgroundColor: "#ffffff" }} edges={["top"]}>
+        <View className="flex-1 items-center justify-center gap-4 px-8">
+          <ActivityIndicator size="large" color={colors.primary} />
+          <Text className="body-md-muted text-center">Connecting to your AI teacher…</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (status === "error") {
+    return (
+      <SafeAreaView style={{ flex: 1, backgroundColor: "#ffffff" }} edges={["top"]}>
+        <View className="flex-1 items-center justify-center gap-4 px-8">
+          <Ionicons name="alert-circle-outline" size={40} color={colors.error} />
+          <Text className="h4 text-center">Could not connect</Text>
+          <Text className="body-md-muted text-center">{error}</Text>
+          <Pressable onPress={retry} className="bg-lingua-purple rounded-full px-6 py-3">
+            <Text className="text-white font-poppins-semibold">Try again</Text>
+          </Pressable>
+          <Pressable onPress={goBack} hitSlop={8}>
+            <Text className="body-sm text-text-secondary">Go back</Text>
+          </Pressable>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (status === "ended" || !call) {
+    return (
+      <SafeAreaView style={{ flex: 1, backgroundColor: "#ffffff" }} edges={["top"]}>
+        <View className="flex-1 items-center justify-center gap-4 px-8">
+          <Text className="h3 text-center">Call ended</Text>
+          <Pressable onPress={goBack} className="bg-lingua-purple rounded-full px-6 py-3">
+            <Text className="text-white font-poppins-semibold">Back to lessons</Text>
+          </Pressable>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   // What the AI teacher "says" in the response bubble: its opening greeting
   // first, then each of the lesson's phrases. Tapping the bubble's speaker
   // icon cycles to the next one.
@@ -56,9 +127,65 @@ export default function AudioLesson() {
   ];
   const currentMessage = teacherMessages[messageIndex % teacherMessages.length];
 
-  const endCall = () => {
-    posthog.capture("audio_lesson_ended", { lessonId: lesson.id });
-    goBack();
+  return (
+    <StreamCall call={call}>
+      <AudioLessonJoined
+        lesson={lesson}
+        language={language}
+        user={user}
+        goBack={goBack}
+        onEndCall={handleEndCall}
+        isCameraOn={isCameraOn}
+        onToggleCamera={() => setIsCameraOn((value) => !value)}
+        showSubtitles={showSubtitles}
+        onToggleSubtitles={() => setShowSubtitles((value) => !value)}
+        currentMessage={currentMessage}
+        onCycleMessage={() => setMessageIndex((index) => (index + 1) % teacherMessages.length)}
+      />
+    </StreamCall>
+  );
+}
+
+function AudioLessonJoined({
+  lesson,
+  language,
+  user,
+  goBack,
+  onEndCall,
+  isCameraOn,
+  onToggleCamera,
+  showSubtitles,
+  onToggleSubtitles,
+  currentMessage,
+  onCycleMessage,
+}: {
+  lesson: Lesson;
+  language: Language;
+  user: ReturnType<typeof useUser>["user"];
+  goBack: () => void;
+  onEndCall: () => void;
+  isCameraOn: boolean;
+  onToggleCamera: () => void;
+  showSubtitles: boolean;
+  onToggleSubtitles: () => void;
+  currentMessage: { text: string; translation?: string };
+  onCycleMessage: () => void;
+}) {
+  const call = useCall();
+  const { useMicrophoneState, useCallCallingState } = useCallStateHooks();
+  const { isMute } = useMicrophoneState();
+  const callingState = useCallCallingState();
+  const isReconnecting = callingState === CallingState.RECONNECTING;
+
+  // Dropping this to false the moment the learner leaves tears the agent
+  // session down without waiting for the screen to unmount.
+  const { status: agentStatus, retry: retryAgent } = useVisionAgentSession({
+    lessonId: lesson.id,
+    enabled: callingState !== CallingState.LEFT,
+  });
+
+  const toggleMic = () => {
+    call?.microphone.toggle().catch((err) => console.error("Failed to toggle microphone", err));
   };
 
   return (
@@ -71,10 +198,11 @@ export default function AudioLesson() {
           </Pressable>
           <View>
             <Text className="h4">AI Teacher</Text>
-            <View className="flex-row items-center gap-1.5 mt-0.5">
-              <View className="w-2 h-2 rounded-full bg-success" />
-              <Text className="caption">Online</Text>
-            </View>
+            <AgentStatusPill
+              status={agentStatus}
+              isReconnecting={isReconnecting}
+              onRetry={retryAgent}
+            />
           </View>
         </View>
 
@@ -105,14 +233,21 @@ export default function AudioLesson() {
             </Text>
           </View>
 
-          <View className="absolute top-4 right-4 w-16 h-20 rounded-2xl overflow-hidden border-2 border-white bg-surface">
-            {user?.imageUrl ? (
-              <Image source={{ uri: user.imageUrl }} className="w-full h-full" resizeMode="cover" />
-            ) : (
-              <View className="w-full h-full items-center justify-center bg-lingua-purple">
-                <Ionicons name="person" size={22} color="#ffffff" />
-              </View>
-            )}
+          <View className="absolute top-4 right-4 items-center gap-1">
+            <View className="w-16 h-20 rounded-2xl overflow-hidden border-2 border-white bg-surface">
+              {user?.imageUrl ? (
+                <Image source={{ uri: user.imageUrl }} className="w-full h-full" resizeMode="cover" />
+              ) : (
+                <View className="w-full h-full items-center justify-center bg-lingua-purple">
+                  <Ionicons name="person" size={22} color="#ffffff" />
+                </View>
+              )}
+            </View>
+            <View className="bg-black/40 rounded-full px-2 py-0.5">
+              <Text className="text-white text-[10px] font-poppins-medium">
+                {user?.firstName ?? "You"}
+              </Text>
+            </View>
           </View>
 
           <View className="flex-1 items-center justify-center p-10">
@@ -128,11 +263,7 @@ export default function AudioLesson() {
                     <Text className="body-md-muted mt-1">{currentMessage.translation}</Text>
                   )}
                 </View>
-                <Pressable
-                  onPress={() => setMessageIndex((index) => (index + 1) % teacherMessages.length)}
-                  hitSlop={8}
-                  className="mt-1"
-                >
+                <Pressable onPress={onCycleMessage} hitSlop={8} className="mt-1">
                   <Ionicons name="volume-high" size={22} color={colors.primary} />
                 </Pressable>
               </View>
@@ -148,22 +279,22 @@ export default function AudioLesson() {
           icon={isCameraOn ? "videocam" : "videocam-off"}
           label="Camera"
           active={isCameraOn}
-          onPress={() => setIsCameraOn((value) => !value)}
+          onPress={onToggleCamera}
         />
         <ControlButton
-          icon={isMuted ? "mic-off" : "mic"}
+          icon={isMute ? "mic-off" : "mic"}
           label="Mic"
-          active={!isMuted}
-          onPress={() => setIsMuted((value) => !value)}
+          active={!isMute}
+          onPress={toggleMic}
         />
         <ControlButton
           icon={showSubtitles ? "language" : "language-outline"}
           label="Subtitles"
           active={showSubtitles}
-          onPress={() => setShowSubtitles((value) => !value)}
+          onPress={onToggleSubtitles}
         />
 
-        <Pressable onPress={endCall} className="items-center gap-1.5">
+        <Pressable onPress={onEndCall} className="items-center gap-1.5">
           <View className="w-14 h-14 rounded-full bg-error items-center justify-center" style={styles.endCallShadow}>
             <Ionicons name="call" size={24} color="#ffffff" style={{ transform: [{ rotate: "135deg" }] }} />
           </View>
@@ -181,6 +312,48 @@ export default function AudioLesson() {
       </View>
     </SafeAreaView>
   );
+}
+
+// The line under the "AI Teacher" title. A dropped call connection outranks
+// the agent's own status, since nothing the agent does is audible while the
+// learner's own connection is down.
+function AgentStatusPill({
+  status,
+  isReconnecting,
+  onRetry,
+}: {
+  status: AgentStatus;
+  isReconnecting: boolean;
+  onRetry: () => void;
+}) {
+  const { dotClassName, label } = describeAgentStatus(status, isReconnecting);
+
+  return (
+    <View className="flex-row items-center gap-1.5 mt-0.5">
+      <View className={`w-2 h-2 rounded-full ${dotClassName}`} />
+      <Text className="caption">{label}</Text>
+      {status === "failed" && !isReconnecting && (
+        <Pressable onPress={onRetry} hitSlop={8}>
+          <Text className="caption text-lingua-purple font-poppins-semibold">Retry</Text>
+        </Pressable>
+      )}
+    </View>
+  );
+}
+
+function describeAgentStatus(status: AgentStatus, isReconnecting: boolean) {
+  if (isReconnecting) return { dotClassName: "bg-warning", label: "Reconnecting…" };
+
+  switch (status) {
+    case "connected":
+      return { dotClassName: "bg-success", label: "Online" };
+    case "connecting":
+      return { dotClassName: "bg-warning", label: "Connecting your teacher…" };
+    case "failed":
+      return { dotClassName: "bg-error", label: "Teacher unavailable" };
+    case "idle":
+      return { dotClassName: "bg-border", label: "Waiting to start" };
+  }
 }
 
 type ControlButtonProps = {
