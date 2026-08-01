@@ -2,7 +2,13 @@ import { useAuth } from "@clerk/expo";
 import { useCallStateHooks } from "@stream-io/video-react-native-sdk";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { AI_TEACHER_USER_ID, startAgentSession, stopAgentSession } from "@/lib/stream";
+import {
+  AI_TEACHER_USER_ID,
+  sendPushToTalk,
+  startAgentSession,
+  stopAgentSession,
+  type PttAction,
+} from "@/lib/stream";
 
 export type AgentStatus = "idle" | "connecting" | "connected" | "failed";
 
@@ -30,8 +36,10 @@ export function useVisionAgentSession({ lessonId, enabled }: Params) {
   const [failed, setFailed] = useState(false);
   const [error, setError] = useState<string>();
   const [retryKey, setRetryKey] = useState(0);
+  const [sessionId, setSessionId] = useState<string>();
 
-  // Read by the cleanup, which must not re-run when the id arrives.
+  // Read by the cleanup, which must not re-run when the id arrives, and by
+  // pushToTalk, which needs the latest id without re-creating its callback.
   const sessionIdRef = useRef<string | undefined>(undefined);
 
   const agentJoined = participants.some(
@@ -53,6 +61,7 @@ export function useVisionAgentSession({ lessonId, enabled }: Params) {
           return;
         }
         sessionIdRef.current = session.sessionId;
+        setSessionId(session.sessionId);
       })
       .catch((err) => {
         console.error("Failed to start the AI teacher", err);
@@ -64,10 +73,11 @@ export function useVisionAgentSession({ lessonId, enabled }: Params) {
 
     return () => {
       cancelled = true;
-      const sessionId = sessionIdRef.current;
+      const endingSessionId = sessionIdRef.current;
       sessionIdRef.current = undefined;
-      if (sessionId) {
-        stopAgentSession(getToken, { lessonId, sessionId }).catch((err) =>
+      setSessionId(undefined);
+      if (endingSessionId) {
+        stopAgentSession(getToken, { lessonId, sessionId: endingSessionId }).catch((err) =>
           console.error("Failed to stop agent session on cleanup", err),
         );
       }
@@ -81,6 +91,23 @@ export function useVisionAgentSession({ lessonId, enabled }: Params) {
     setRetryKey((key) => key + 1);
   }, []);
 
+  // Reads the ref (not the `sessionId` state) so this callback stays stable
+  // across the session's lifetime instead of being recreated every time the
+  // id changes.
+  const pushToTalk = useCallback(
+    (action: PttAction) => {
+      const id = sessionIdRef.current;
+      if (!id) {
+        console.warn(`pushToTalk("${action}") called with no active agent session`);
+        return Promise.resolve();
+      }
+      return sendPushToTalk(getToken, { lessonId, sessionId: id, action }).catch((err) =>
+        console.error(`Failed to send push-to-talk "${action}"`, err),
+      );
+    },
+    [getToken, lessonId],
+  );
+
   // Derived rather than stored, so the agent leaving the call is reflected
   // immediately instead of needing another render to catch up.
   const status: AgentStatus = !enabled
@@ -91,5 +118,5 @@ export function useVisionAgentSession({ lessonId, enabled }: Params) {
         ? "connected"
         : "connecting";
 
-  return { status, error, retry };
+  return { status, error, retry, sessionId, pushToTalk };
 }

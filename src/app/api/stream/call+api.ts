@@ -56,10 +56,11 @@ export async function POST(request: Request) {
         { user_id: userId, role: "admin" },
         { user_id: AI_TEACHER_USER.id, role: "admin" },
       ],
-      // audio_room defaults the mic to off; the lesson is a conversation, so
-      // the learner should be able to talk the moment they land on screen.
+      // The lesson is push-to-talk: the learner's mic should stay off until
+      // they hold the mic button (see the Audio Lesson screen), not publish
+      // continuously from the moment they land on screen.
       settings_override: {
-        audio: { default_device: "speaker", mic_default_on: true, speaker_default_on: true },
+        audio: { default_device: "speaker", mic_default_on: false, speaker_default_on: true },
       },
       custom: buildLessonCustomData(lesson, language?.name),
     },

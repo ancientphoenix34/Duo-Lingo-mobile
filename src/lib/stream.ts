@@ -93,3 +93,17 @@ export const stopAgentSession = (
     getToken,
     { method: "DELETE" },
   );
+
+export type PttAction = "start" | "stop";
+
+// Push-to-talk signal: "start" (mic pressed) interrupts the teacher
+// immediately, "stop" (mic released) asks it to reply.
+export const sendPushToTalk = (
+  getToken: GetToken,
+  params: { lessonId: string; sessionId: string; action: PttAction },
+) =>
+  authedFetch<{ ok: boolean }>("/api/agent/ptt", getToken, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(params),
+  });

@@ -9,19 +9,18 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { router, useLocalSearchParams } from "expo-router";
 import { usePostHog } from "posthog-react-native";
-import { useState } from "react";
-import { ActivityIndicator, Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { useEffect, useState } from "react";
+import { ActivityIndicator, Animated, Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { images } from "@/constants/images";
 import { languages } from "@/data/languages";
 import { lessons } from "@/data/lessons";
 import { useAudioLessonCall } from "@/hooks/useAudioLessonCall";
+import { useLiveCaptions } from "@/hooks/useLiveCaptions";
 import { useVisionAgentSession, type AgentStatus } from "@/hooks/useVisionAgentSession";
 import { colors } from "@/theme";
 import type { Language, Lesson } from "@/types/learning";
-
-type IoniconName = React.ComponentProps<typeof Ionicons>["name"];
 
 // Placeholder streak count until streak tracking is implemented in Zustand
 // (mirrors the same placeholder used on the Home screen).
@@ -63,10 +62,6 @@ function AudioLessonScreen({
 }) {
   const { user } = useUser();
   const posthog = usePostHog();
-
-  const [isCameraOn, setIsCameraOn] = useState(false);
-  const [showSubtitles, setShowSubtitles] = useState(true);
-  const [messageIndex, setMessageIndex] = useState(0);
 
   const { call, status, error, endCall, retry } = useAudioLessonCall({ lessonId: lesson.id });
 
@@ -118,15 +113,6 @@ function AudioLessonScreen({
     );
   }
 
-  // What the AI teacher "says" in the response bubble: its opening greeting
-  // first, then each of the lesson's phrases. Tapping the bubble's speaker
-  // icon cycles to the next one.
-  const teacherMessages: { text: string; translation?: string }[] = [
-    { text: lesson.aiTeacherPrompt.greeting },
-    ...lesson.phrases.map((phrase) => ({ text: phrase.phrase, translation: phrase.translation })),
-  ];
-  const currentMessage = teacherMessages[messageIndex % teacherMessages.length];
-
   return (
     <StreamCall call={call}>
       <AudioLessonJoined
@@ -135,12 +121,6 @@ function AudioLessonScreen({
         user={user}
         goBack={goBack}
         onEndCall={handleEndCall}
-        isCameraOn={isCameraOn}
-        onToggleCamera={() => setIsCameraOn((value) => !value)}
-        showSubtitles={showSubtitles}
-        onToggleSubtitles={() => setShowSubtitles((value) => !value)}
-        currentMessage={currentMessage}
-        onCycleMessage={() => setMessageIndex((index) => (index + 1) % teacherMessages.length)}
       />
     </StreamCall>
   );
@@ -152,40 +132,63 @@ function AudioLessonJoined({
   user,
   goBack,
   onEndCall,
-  isCameraOn,
-  onToggleCamera,
-  showSubtitles,
-  onToggleSubtitles,
-  currentMessage,
-  onCycleMessage,
 }: {
   lesson: Lesson;
   language: Language;
   user: ReturnType<typeof useUser>["user"];
   goBack: () => void;
   onEndCall: () => void;
-  isCameraOn: boolean;
-  onToggleCamera: () => void;
-  showSubtitles: boolean;
-  onToggleSubtitles: () => void;
-  currentMessage: { text: string; translation?: string };
-  onCycleMessage: () => void;
 }) {
   const call = useCall();
-  const { useMicrophoneState, useCallCallingState } = useCallStateHooks();
-  const { isMute } = useMicrophoneState();
+  const { useCallCallingState, useLocalParticipant } = useCallStateHooks();
   const callingState = useCallCallingState();
+  const localParticipant = useLocalParticipant();
   const isReconnecting = callingState === CallingState.RECONNECTING;
+
+  // Push-to-talk: held mirrors the button press directly rather than the
+  // Stream mic's own (network-confirmed, slightly laggy) mute state, so the
+  // UI responds the instant the student presses, not after the SDK confirms.
+  const [held, setHeld] = useState(false);
+
+  // Stream reports the local participant's own mic level (0-1) back from the
+  // SFU, same mechanism used for speaking indicators elsewhere in the SDK.
+  // Animate towards it while held so the ring pulses smoothly with voice
+  // volume, and drop it to 0 the moment the button is released.
+  const [micLevel] = useState(() => new Animated.Value(0));
+  useEffect(() => {
+    Animated.timing(micLevel, {
+      toValue: held ? (localParticipant?.audioLevel ?? 0) : 0,
+      duration: 120,
+      useNativeDriver: true,
+    }).start();
+  }, [held, localParticipant?.audioLevel, micLevel]);
 
   // Dropping this to false the moment the learner leaves tears the agent
   // session down without waiting for the screen to unmount.
-  const { status: agentStatus, retry: retryAgent } = useVisionAgentSession({
+  const {
+    status: agentStatus,
+    retry: retryAgent,
+    sessionId,
+    pushToTalk,
+  } = useVisionAgentSession({
     lessonId: lesson.id,
     enabled: callingState !== CallingState.LEFT,
   });
 
-  const toggleMic = () => {
-    call?.microphone.toggle().catch((err) => console.error("Failed to toggle microphone", err));
+  const pttReady = agentStatus === "connected" && Boolean(sessionId);
+
+  const { teacherLine, studentLine } = useLiveCaptions(call);
+
+  const handlePressIn = () => {
+    setHeld(true);
+    call?.microphone.enable().catch((err) => console.error("Failed to enable microphone", err));
+    pushToTalk("start");
+  };
+
+  const handlePressOut = () => {
+    setHeld(false);
+    call?.microphone.disable().catch((err) => console.error("Failed to disable microphone", err));
+    pushToTalk("stop");
   };
 
   return (
@@ -208,14 +211,17 @@ function AudioLessonJoined({
 
         <View className="flex-row items-center gap-2">
           <View className="w-9 h-9 rounded-full border border-border items-center justify-center">
-            <Ionicons name="videocam-outline" size={17} color={colors.textPrimary} />
-          </View>
-          <View className="w-9 h-9 rounded-full border border-border items-center justify-center">
             <Text className="body-sm font-poppins-semibold">{STREAK_COUNT}</Text>
           </View>
           <View className="w-9 h-9 rounded-full border border-border items-center justify-center">
             <Ionicons name="notifications-outline" size={17} color={colors.textPrimary} />
           </View>
+          <Pressable
+            onPress={onEndCall}
+            className="w-9 h-9 rounded-full bg-error items-center justify-center"
+          >
+            <Ionicons name="call" size={16} color="#ffffff" style={{ transform: [{ rotate: "135deg" }] }} />
+          </Pressable>
         </View>
       </View>
 
@@ -254,52 +260,19 @@ function AudioLessonJoined({
             <Image source={images.mascotWelcome} style={{ width: "100%", height: "100%" }} resizeMode="contain" />
           </View>
 
-          {showSubtitles && (
-            <View className="absolute bottom-4 left-4 right-4">
-              <View className="bg-white rounded-3xl px-5 py-4 flex-row items-start gap-3" style={styles.bubbleShadow}>
-                <View className="flex-1">
-                  <Text className="body-lg font-poppins-semibold">{currentMessage.text}</Text>
-                  {currentMessage.translation && (
-                    <Text className="body-md-muted mt-1">{currentMessage.translation}</Text>
-                  )}
-                </View>
-                <Pressable onPress={onCycleMessage} hitSlop={8} className="mt-1">
-                  <Ionicons name="volume-high" size={22} color={colors.primary} />
-                </Pressable>
-              </View>
-              <View style={styles.bubbleTail} />
-            </View>
-          )}
+          <CaptionsOverlay teacherLine={teacherLine} studentLine={studentLine} />
         </LinearGradient>
       </View>
 
-      {/* Controls */}
-      <View className="flex-row items-center justify-between px-8 mt-5">
-        <ControlButton
-          icon={isCameraOn ? "videocam" : "videocam-off"}
-          label="Camera"
-          active={isCameraOn}
-          onPress={onToggleCamera}
+      {/* Push-to-talk control */}
+      <View className="flex-row items-center justify-center mt-5">
+        <PushToTalkButton
+          held={held}
+          disabled={!pttReady}
+          level={micLevel}
+          onPressIn={handlePressIn}
+          onPressOut={handlePressOut}
         />
-        <ControlButton
-          icon={isMute ? "mic-off" : "mic"}
-          label="Mic"
-          active={!isMute}
-          onPress={toggleMic}
-        />
-        <ControlButton
-          icon={showSubtitles ? "language" : "language-outline"}
-          label="Subtitles"
-          active={showSubtitles}
-          onPress={onToggleSubtitles}
-        />
-
-        <Pressable onPress={onEndCall} className="items-center gap-1.5">
-          <View className="w-14 h-14 rounded-full bg-error items-center justify-center" style={styles.endCallShadow}>
-            <Ionicons name="call" size={24} color="#ffffff" style={{ transform: [{ rotate: "135deg" }] }} />
-          </View>
-          <Text className="caption">End Call</Text>
-        </Pressable>
       </View>
 
       {/* Session feedback */}
@@ -311,6 +284,35 @@ function AudioLessonJoined({
         <FeedbackStat label="Grammar" value="Good" valueClassName="text-lingua-blue" />
       </View>
     </SafeAreaView>
+  );
+}
+
+// Live subtitles for the media card: the teacher's line grows on the left as
+// the model's speech is transcribed, the student's own line grows on the
+// right while they hold the mic. Either can be absent - most turns only ever
+// show one at a time since the lesson is push-to-talk.
+function CaptionsOverlay({ teacherLine, studentLine }: { teacherLine?: string; studentLine?: string }) {
+  if (!teacherLine && !studentLine) return null;
+
+  return (
+    <View className="absolute bottom-3 left-3 right-3 gap-1.5" pointerEvents="none">
+      {teacherLine && (
+        <View className="bg-black/60 rounded-2xl px-3.5 py-2 self-start max-w-[92%]">
+          <Text className="text-white/60 text-[10px] font-poppins-medium uppercase tracking-wide mb-0.5">
+            AI Teacher
+          </Text>
+          <Text className="text-white text-[14px] font-poppins-medium leading-5">{teacherLine}</Text>
+        </View>
+      )}
+      {studentLine && (
+        <View className="bg-lingua-purple/85 rounded-2xl px-3.5 py-2 self-end max-w-[92%]">
+          <Text className="text-white/60 text-[10px] font-poppins-medium uppercase tracking-wide mb-0.5">
+            You
+          </Text>
+          <Text className="text-white text-[14px] font-poppins-medium leading-5">{studentLine}</Text>
+        </View>
+      )}
+    </View>
   );
 }
 
@@ -356,26 +358,56 @@ function describeAgentStatus(status: AgentStatus, isReconnecting: boolean) {
   }
 }
 
-type ControlButtonProps = {
-  icon: IoniconName;
-  label: string;
-  active: boolean;
-  onPress: () => void;
-};
+// The screen's one primary control: hold to talk. Pressing it interrupts the
+// teacher immediately (see pushToTalk("start") in the Python agent) and
+// releasing it asks the teacher to reply - there's no separate mute toggle
+// anymore, since the mic is only ever live while this is held.
+function PushToTalkButton({
+  held,
+  disabled,
+  level,
+  onPressIn,
+  onPressOut,
+}: {
+  held: boolean;
+  disabled: boolean;
+  level: Animated.Value;
+  onPressIn: () => void;
+  onPressOut: () => void;
+}) {
+  const ringScale = level.interpolate({
+    inputRange: [0, 1],
+    outputRange: [1, 1.5],
+    extrapolate: "clamp",
+  });
+  const ringOpacity = level.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 0.6],
+    extrapolate: "clamp",
+  });
 
-// One button in the bottom control row: a circular icon toggle with its
-// label underneath. Camera/Mic/Subtitles all share this shape; End Call is
-// styled separately since it's the one destructive, filled action.
-function ControlButton({ icon, label, active, onPress }: ControlButtonProps) {
+  const circleClassName = disabled
+    ? "bg-surface border-border"
+    : held
+      ? "bg-lingua-purple border-lingua-purple"
+      : "bg-white border-border";
+  const iconColor = disabled ? colors.textSecondary : held ? "#ffffff" : colors.textPrimary;
+
   return (
-    <Pressable onPress={onPress} className="items-center gap-1.5">
-      <View
-        className="w-14 h-14 rounded-full bg-white border border-border items-center justify-center"
-        style={styles.controlShadow}
-      >
-        <Ionicons name={icon} size={22} color={active ? colors.textPrimary : colors.error} />
+    <Pressable onPressIn={onPressIn} onPressOut={onPressOut} disabled={disabled} className="items-center gap-2">
+      <View className="w-28 h-28 items-center justify-center">
+        <Animated.View
+          pointerEvents="none"
+          style={[styles.pttLevelRing, { opacity: ringOpacity, transform: [{ scale: ringScale }] }]}
+        />
+        <View
+          className={`w-28 h-28 rounded-full border-2 items-center justify-center ${circleClassName}`}
+          style={styles.controlShadow}
+        >
+          <Ionicons name={held ? "mic" : "mic-outline"} size={38} color={iconColor} />
+        </View>
       </View>
-      <Text className="caption">{label}</Text>
+      <Text className="caption">{held ? "Listening…" : "Hold to talk"}</Text>
     </Pressable>
   );
 }
@@ -398,35 +430,21 @@ function FeedbackStat({
 }
 
 const styles = StyleSheet.create({
+  // White, not purple: the button itself turns solid `lingua-purple` while
+  // held, so a purple ring would blend straight into it and never be seen.
+  pttLevelRing: {
+    position: "absolute",
+    width: 112,
+    height: 112,
+    borderRadius: 56,
+    backgroundColor: "#ffffff",
+  },
   controlShadow: {
     shadowColor: "#000000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.08,
     shadowRadius: 8,
     elevation: 3,
-  },
-  endCallShadow: {
-    shadowColor: colors.error,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  bubbleShadow: {
-    shadowColor: "#000000",
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 4,
-  },
-  bubbleTail: {
-    position: "absolute",
-    bottom: -6,
-    left: 28,
-    width: 16,
-    height: 16,
-    backgroundColor: "#ffffff",
-    transform: [{ rotate: "45deg" }],
   },
   feedbackPanel: {
     shadowColor: "#000000",
