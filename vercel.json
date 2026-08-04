@@ -1,4 +1,5 @@
 {
+  "installCommand": "npm install --legacy-peer-deps",
   "buildCommand": "expo export -p web",
   "outputDirectory": "dist/client",
   "functions": {

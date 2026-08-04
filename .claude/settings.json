@@ -133,7 +133,10 @@
       "Bash(xargs grep -l \"interface UserResource\")",
       "Bash(./vision-agent/.venv/Scripts/python.exe -m py_compile vision-agent/agent.py)",
       "Bash(AGENT_SHARED_SECRET=test-secret-123 ./.venv/Scripts/python.exe -c ' *)",
-      "Bash(node -e \"const l=require\\('./package-lock.json'\\); console.log\\(l.packages[''].dependencies['expo-server'] ? 'yes: '+l.packages[''].dependencies['expo-server'] : 'NO'\\)\")"
+      "Bash(node -e \"const l=require\\('./package-lock.json'\\); console.log\\(l.packages[''].dependencies['expo-server'] ? 'yes: '+l.packages[''].dependencies['expo-server'] : 'NO'\\)\")",
+      "Bash(curl -s -o /dev/null -w \"status: %{http_code}\\\\n\" https://duo-lingo-mobile.vercel.app/api/stream/token)",
+      "Bash(curl -s https://duo-lingo-mobile.vercel.app/api/stream/token)",
+      "Bash(curl -s -o /dev/null -w \"status: %{http_code}\\\\n\" https://duo-lingo-mobile.vercel.app/)"
     ],
     "additionalDirectories": [
       "C:\\Users\\ASUS\\Desktop\\MY WORKS\\Duo-Lingo\\src\\app\\lesson",

@@ -51,7 +51,14 @@ Redeploy on Fly.io, which is friendlier to WebRTC, using `python:3.12-slim` + `u
 ## 2. API routes → Vercel
 
 `vercel.json` and `api/index.ts` are already committed, and `app.json` is set to
-`"web": { "output": "server" }`.
+`"web": { "output": "server" }`. Import the repo in Vercel and **don't override the build or install
+command** in Project Settings.
+
+> `vercel.json` pins `installCommand` to `npm install --legacy-peer-deps` on purpose.
+> `@config-plugins/react-native-webrtc@15.0.1` still declares `peer expo@^56` while this project is
+> on Expo 57, so a plain `npm install` dies with `ERESOLVE` *before the build starts*. That deploys
+> nothing, and the symptom is every path returning 404 — static assets included — which looks like a
+> routing bug but isn't. Don't "fix" it by downgrading Expo.
 
 Environment variables — **server-only, never `EXPO_PUBLIC_`-prefixed**:
 
