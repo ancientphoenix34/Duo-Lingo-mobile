@@ -75,6 +75,14 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {
+        "origin": "https://duo-lingo-mobile.vercel.app"
+      },
+      "eas": {
+        "projectId": "e08e9b39-930b-4ba3-b36f-bc02bfe75a57"
+      }
     }
   }
 }
