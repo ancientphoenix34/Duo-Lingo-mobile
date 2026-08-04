@@ -130,7 +130,13 @@
       "Bash(curl -sL -w '\\\\nHTTP:%{http_code} SIZE:%{size_download}\\\\n' https://cdn.jsdelivr.net/gh/googlefonts/noto-emoji/png/128/emoji_u1f98c.png -o C:/Users/ASUS/AppData/Local/Temp/claude/c--Users-ASUS-Desktop-MY-WORKS-Duo-Lingo/58d43837-033e-4441-b2d1-adf7328d757a/scratchpad/preview2/noto_deer.png)",
       "Bash(python3 -c ' *)",
       "Bash(xargs grep -l \"createdAt\")",
-      "Bash(xargs grep -l \"interface UserResource\")"
+      "Bash(xargs grep -l \"interface UserResource\")",
+      "Bash(./vision-agent/.venv/Scripts/python.exe -m py_compile vision-agent/agent.py)",
+      "Bash(AGENT_SHARED_SECRET=test-secret-123 ./.venv/Scripts/python.exe -c ' *)",
+      "Bash(node -e \"const l=require\\('./package-lock.json'\\); console.log\\(l.packages[''].dependencies['expo-server'] ? 'yes: '+l.packages[''].dependencies['expo-server'] : 'NO'\\)\")",
+      "Bash(curl -s -o /dev/null -w \"status: %{http_code}\\\\n\" https://duo-lingo-mobile.vercel.app/api/stream/token)",
+      "Bash(curl -s https://duo-lingo-mobile.vercel.app/api/stream/token)",
+      "Bash(curl -s -o /dev/null -w \"status: %{http_code}\\\\n\" https://duo-lingo-mobile.vercel.app/)"
     ],
     "additionalDirectories": [
       "C:\\Users\\ASUS\\Desktop\\MY WORKS\\Duo-Lingo\\src\\app\\lesson",

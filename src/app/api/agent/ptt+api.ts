@@ -1,10 +1,5 @@
 import { lessons } from "@/data/lessons";
-import { buildCallId, requireClerkUserId } from "@/lib/stream-server";
-
-// The Vision Agent service (vision-agent/, `uv run agent.py serve`). Kept
-// server-side only: the mobile app never learns this URL, it just asks this
-// route to signal the teacher.
-const visionAgentUrl = process.env.VISION_AGENT_URL;
+import { agentFetch, buildCallId, isAgentConfigured, requireClerkUserId } from "@/lib/stream-server";
 
 type PttAction = "start" | "stop";
 
@@ -20,7 +15,7 @@ export async function POST(request: Request) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  if (!visionAgentUrl) {
+  if (!isAgentConfigured) {
     return Response.json({ error: "VISION_AGENT_URL is not configured" }, { status: 503 });
   }
 
@@ -46,8 +41,8 @@ export async function POST(request: Request) {
 
   const callId = buildCallId(lesson.id, userId);
 
-  const res = await fetch(
-    `${visionAgentUrl}/calls/${encodeURIComponent(callId)}/sessions/${encodeURIComponent(sessionId)}/ptt/${body.action}`,
+  const res = await agentFetch(
+    `/calls/${encodeURIComponent(callId)}/sessions/${encodeURIComponent(sessionId)}/ptt/${body.action}`,
     { method: "POST" },
   );
 
