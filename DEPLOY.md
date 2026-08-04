@@ -54,11 +54,22 @@ Redeploy on Fly.io, which is friendlier to WebRTC, using `python:3.12-slim` + `u
 `"web": { "output": "server" }`. Import the repo in Vercel and **don't override the build or install
 command** in Project Settings.
 
-> `vercel.json` pins `installCommand` to `npm install --legacy-peer-deps` on purpose.
-> `@config-plugins/react-native-webrtc@15.0.1` still declares `peer expo@^56` while this project is
-> on Expo 57, so a plain `npm install` dies with `ERESOLVE` *before the build starts*. That deploys
-> nothing, and the symptom is every path returning 404 — static assets included — which looks like a
-> routing bug but isn't. Don't "fix" it by downgrading Expo.
+> **Why `.npmrc` sets `legacy-peer-deps=true`:** `@config-plugins/react-native-webrtc@15.0.1` still
+> declares `peer expo@^56` while this project is on Expo 57, so *every* `npm install` here hits
+> `ERESOLVE`. Don't "fix" it by downgrading Expo — the package is build-time only.
+>
+> A Vercel deploy runs **two** installs, and they need different fixes:
+> 1. The project install, governed by `installCommand` in `vercel.json`. Fails → nothing deploys,
+>    and the symptom is every path 404ing (static assets included), which looks like a routing bug.
+> 2. The `@vercel/node` builder's own install for `api/index.ts`, which runs *after* a successful
+>    build and **ignores `installCommand`**. Fails → `Error: Command "npm install" exited with 1`
+>    even though the log shows `Exported: dist` just above it.
+>
+> Only repo config reaches both, which is why `.npmrc` exists. Keep it committed.
+
+> **Node version:** Vercel's builder supports up to 22.x. If Project Settings is on 24.x the build
+> dies immediately with `Found invalid Node.js Version`. Set Settings → Build and Deployment →
+> Node.js Version to **22.x**.
 
 Environment variables — **server-only, never `EXPO_PUBLIC_`-prefixed**:
 
