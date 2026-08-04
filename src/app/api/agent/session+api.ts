@@ -1,10 +1,5 @@
 import { lessons } from "@/data/lessons";
-import { buildCallId, requireClerkUserId } from "@/lib/stream-server";
-
-// The Vision Agent service (vision-agent/, `uv run agent.py serve`). Kept
-// server-side only: the mobile app never learns this URL, it just asks this
-// route to start or stop the teacher.
-const visionAgentUrl = process.env.VISION_AGENT_URL;
+import { agentFetch, buildCallId, isAgentConfigured, requireClerkUserId } from "@/lib/stream-server";
 
 // Matches CALL_TYPE in ../stream/call+api.ts - the agent has to join the same
 // call type the learner is on.
@@ -17,7 +12,7 @@ export async function POST(request: Request) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  if (!visionAgentUrl) {
+  if (!isAgentConfigured) {
     return Response.json({ error: "VISION_AGENT_URL is not configured" }, { status: 503 });
   }
 
@@ -29,7 +24,7 @@ export async function POST(request: Request) {
 
   const callId = buildCallId(lesson.id, userId);
 
-  const res = await fetch(`${visionAgentUrl}/calls/${encodeURIComponent(callId)}/sessions`, {
+  const res = await agentFetch(`/calls/${encodeURIComponent(callId)}/sessions`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ call_type: CALL_TYPE }),
@@ -55,7 +50,7 @@ export async function DELETE(request: Request) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  if (!visionAgentUrl) {
+  if (!isAgentConfigured) {
     return Response.json({ error: "VISION_AGENT_URL is not configured" }, { status: 503 });
   }
 
@@ -71,8 +66,8 @@ export async function DELETE(request: Request) {
   // learner from closing another learner's agent session.
   const callId = buildCallId(lessonId, userId);
 
-  const res = await fetch(
-    `${visionAgentUrl}/calls/${encodeURIComponent(callId)}/sessions/${encodeURIComponent(sessionId)}`,
+  const res = await agentFetch(
+    `/calls/${encodeURIComponent(callId)}/sessions/${encodeURIComponent(sessionId)}`,
     { method: "DELETE" },
   );
 

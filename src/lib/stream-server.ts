@@ -9,6 +9,8 @@ import { AI_TEACHER_USER_ID } from "@/lib/stream";
 const streamApiKey = process.env.STREAM_API_KEY!;
 const streamApiSecret = process.env.STREAM_API_SECRET!;
 const clerkSecretKey = process.env.CLERK_SECRET_KEY!;
+const visionAgentUrl = process.env.VISION_AGENT_URL;
+const agentSharedSecret = process.env.AGENT_SHARED_SECRET;
 
 // The Expo side adds this user to the call as an admin member; the Python
 // agent connects as it (see AGENT_USER in vision-agent/agent.py).
@@ -47,6 +49,26 @@ export async function requireClerkUserId(request: Request): Promise<string | nul
   } catch {
     return null;
   }
+}
+
+/** Both agent routes answer 503 when the service address is missing. */
+export const isAgentConfigured = Boolean(visionAgentUrl);
+
+/**
+ * Calls the Vision Agent service (vision-agent/, `uv run agent.py serve`).
+ * Owns its address and the shared secret that authenticates this server to it,
+ * so neither ever reaches the mobile app — the app only asks these routes to
+ * start, stop, or signal the teacher. The agent rejects anything without the
+ * header (see _register_auth_middleware in vision-agent/agent.py).
+ */
+export function agentFetch(path: string, init?: RequestInit) {
+  return fetch(`${visionAgentUrl}${path}`, {
+    ...init,
+    headers: {
+      ...init?.headers,
+      ...(agentSharedSecret ? { "X-Agent-Secret": agentSharedSecret } : {}),
+    },
+  });
 }
 
 export { streamApiKey };

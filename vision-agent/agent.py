@@ -8,11 +8,13 @@ Run:
 
 import asyncio
 import logging
+import os
+from hmac import compare_digest
 from typing import Any
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
-from fastapi.responses import Response
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import JSONResponse, Response
 from openai.types.realtime import (
     AudioTranscriptionParam,
     RealtimeAudioConfigInputParam,
@@ -332,8 +334,31 @@ def _register_ptt_routes(fast_api: FastAPI, launcher: AgentLauncher) -> None:
         return Response(status_code=202)
 
 
+def _register_auth_middleware(fast_api: FastAPI) -> None:
+    """Rejects any caller that doesn't carry the shared secret. This service is
+    only ever meant to be reached by the Expo API routes (src/app/api/agent/*),
+    which hold the same secret server-side - without this, publishing it lets
+    anyone spawn OpenAI Realtime sessions on our key. Skipped when
+    AGENT_SHARED_SECRET is unset so local `uv run agent.py serve` is unchanged."""
+    secret = os.environ.get("AGENT_SHARED_SECRET")
+    if not secret:
+        logger.warning(
+            "AGENT_SHARED_SECRET is not set - the agent HTTP API is unauthenticated"
+        )
+        return
+
+    @fast_api.middleware("http")
+    async def require_shared_secret(request: Request, call_next):
+        # compare_digest rather than ==, so the secret can't be recovered by
+        # timing how long a wrong guess takes to be rejected.
+        if not compare_digest(request.headers.get("x-agent-secret") or "", secret):
+            return JSONResponse({"detail": "Forbidden"}, status_code=403)
+        return await call_next(request)
+
+
 if __name__ == "__main__":
     launcher = AgentLauncher(create_agent=create_agent, join_call=join_call)
     runner = Runner(launcher)
+    _register_auth_middleware(runner.fast_api)
     _register_ptt_routes(runner.fast_api, launcher)
     runner.cli()
