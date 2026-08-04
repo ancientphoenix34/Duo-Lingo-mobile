@@ -38,7 +38,12 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-      "expo-router",
+      [
+        "expo-router",
+        {
+          "origin": "https://duo-lingo-mobile.vercel.app"
+        }
+      ],
       [
         "expo-splash-screen",
         {
