@@ -1,0 +1,63 @@
+# Files excluded from the tarball uploaded to EAS Build.
+#
+# IMPORTANT: when this file exists, EAS uses it *instead of* .gitignore - not in
+# addition to it. So everything from .gitignore is repeated below; if you add a
+# rule there, add it here too.
+
+# --- The reason this file exists -------------------------------------------
+# .agents/skills/ and .claude/skills/ hold byte-identical copies of the same
+# Claude Code skill files. EAS's archiver links duplicate content instead of
+# copying it, and Windows refuses to create links without elevated privileges:
+#   EPERM: operation not permitted, symlink '...\.agents\skills\eas-hosting'
+# None of it is app code, so it never needs to reach the build machine.
+.agents/
+.claude/
+
+# Not part of the Android app: the Python vision-agent service (deployed to
+# Railway separately) and design reference material.
+vision-agent/
+prompt_material/
+
+# --- Mirrored from .gitignore ----------------------------------------------
+# dependencies
+node_modules/
+
+# Expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# Native
+.kotlin/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Metro
+.metro-health-check*
+
+# debug
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# macOS
+.DS_Store
+*.pem
+
+# local env files
+.env*.local
+.env
+
+# typescript
+*.tsbuildinfo
+
+example
+
+# generated native folders - EAS runs `expo prebuild` itself
+/ios
+/android
