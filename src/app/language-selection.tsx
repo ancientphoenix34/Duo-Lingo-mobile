@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
+import { Redirect, router } from "expo-router";
 import { usePostHog } from "posthog-react-native";
 import { useMemo, useState } from "react";
 import { Image, Pressable, ScrollView, Text, TextInput, View } from "react-native";
@@ -22,18 +22,31 @@ export default function LanguageSelection() {
     selectedLanguage ?? languages[0].code,
   );
 
+  // Whether this screen is the app's entry point (no language picked yet)
+  // rather than a screen pushed from home to change languages. Captured at
+  // mount because confirming flips `selectedLanguage` and would otherwise
+  // erase the distinction.
+  const [isFirstRun] = useState(() => selectedLanguage === null);
+
   const filteredLanguages = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
     return languages.filter((language) => language.name.toLowerCase().includes(normalizedQuery));
   }, [query]);
 
-  const goBack = () => (router.canGoBack() ? router.back() : router.replace("/(tabs)/index"));
+  const goBack = () => (router.canGoBack() ? router.back() : router.replace("/(tabs)"));
 
   const confirmSelection = () => {
     posthog.capture("language_selected", { language: selectedCode });
     setSelectedLanguage(selectedCode);
-    goBack();
+    // On first run the tabs don't exist yet - the root layout registers them
+    // in response to this very state change, so handing over is left to the
+    // redirect below, which renders after that guard has caught up.
+    if (!isFirstRun) goBack();
   };
+
+  if (isFirstRun && selectedLanguage) {
+    return <Redirect href="/(tabs)" />;
+  }
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#ffffff" }}>

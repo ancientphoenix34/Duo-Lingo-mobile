@@ -49,6 +49,7 @@ export default function RootLayout() {
 function RootNavigation() {
   const { isLoaded, isSignedIn } = useAuth();
   const hasHydrated = useLanguageStore((state) => state.hasHydrated);
+  const hasLanguage = useLanguageStore((state) => state.selectedLanguage !== null);
   const posthog = usePostHog();
   const pathname = usePathname();
 
@@ -72,7 +73,13 @@ function RootNavigation() {
   const stack = (
     <Stack>
       <Stack.Protected guard={isSignedIn}>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        {/* Registering the tabs only once a language exists is what keeps a
+            first-run sign-in off the home screen entirely. Guarding inside
+            (tabs)/index instead would mount the tab bar and paint an empty
+            shell for a beat before the redirect could fire. */}
+        <Stack.Protected guard={hasLanguage}>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        </Stack.Protected>
         <Stack.Screen name="language-selection" options={{ headerShown: false }} />
       </Stack.Protected>
       <Stack.Protected guard={!isSignedIn}>
